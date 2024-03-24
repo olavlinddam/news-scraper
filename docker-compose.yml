@@ -1,0 +1,25 @@
+version: '3.1'
+
+
+services:
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    hostname: "mongo"
+#    ports:
+#      - "5001:27017"
+
+  app:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - mongo
+    hostname: scraper
+#    environment:
+#      - CONN_STR=mongodb://user:pass@mongodb

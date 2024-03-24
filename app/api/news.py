@@ -9,6 +9,10 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+# Dependency for injecting the collection object
+async def get_articles_collection():
+    return Depends(get_db_connection)  # Reuse the get_db_connection function
+
 
 fake_news = generate_articles(10)
 
@@ -17,6 +21,13 @@ fake_news = generate_articles(10)
 @router.get("/")
 async def get_news():
     return fake_news
+
+
+@router.get("/db-test")
+async def get_all_articles(articles: MongoClient = Depends(get_articles_collection)):
+    # Use the articles collection object for database operations
+    all_articles = articles.find({})  # Example query
+    return all_articles  # Return the results
 
 
 @router.get("/{article_id}")
