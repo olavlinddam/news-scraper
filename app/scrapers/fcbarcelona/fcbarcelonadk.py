@@ -9,6 +9,7 @@ from app.models import article
 baseUrl = "https://fcbarcelona.dk"
 
 
+
 def scrape(url):
     r = requests.get(url)
     print(r.text)
