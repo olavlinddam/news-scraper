@@ -6,8 +6,7 @@ from app.dependencies import get_db_connection
 import json
 from app.models import article
 
-baseUrl = "https://fcbarcelona.dk"
-
+base_url = "https://fcbarcelona.dk"
 
 
 def scrape(url):
@@ -35,7 +34,7 @@ def get_article_content(links):
     data = []
 
     for url in links:
-        article_url = baseUrl + url
+        article_url = base_url + url
         article_data = scrape(article_url)
         parsed_article = parse_article_content(article_data, article_url)
         data.append(parsed_article)
@@ -46,41 +45,41 @@ def get_article_content(links):
     return json_data
 
 
-
 def parse_article_content(html, article_url):
     soup = BeautifulSoup(html, "html.parser")
+    article_test = soup.find('div', id='article_main')
+    print(article_test)
 
     # gpt3.5
     # Remove unwanted text
     for div in soup.find_all('div', class_='custom'):
         div.decompose()
+
+    for div in soup.find_all('div', class_='yellow'):
+        div.decompose()
+
+
     # Find the first paragraph element
-
     article_header = soup.find('div', id='article_header').find('h1').text.strip()
-    try:
-        # Check if the content is in the first <p> tag
-        article_main = soup.find('div', id='article_main').find_all('p')[1].text.strip()
-        if not article_main:
-            # If the content is empty, check the second <p> tag
-            article_main = soup.find('div', id='article_main').find_all('p')[2].text.strip()
-    except IndexError:
-        try:
-            # If the first attempt fails, try to retrieve the content from the second <p> tag
-            article_main = soup.find('div', id='article_main').find_all('p')[2].text.strip()
-        except IndexError:
-            # If both attempts fail, handle the situation gracefully (e.g., print an error message or assign a default value)
-            article_main = "Content not found"
+    paragraphs = soup.find_all('p')[1:]
+    article_text = [p.get_text(strip=True) for p in paragraphs]
 
-    parsed_article = article.article(title=article_header, content=article_main, created_at=datetime.date,
-                                  origin_url=article_url)
+    # Join the extracted text into a single string
+    article_text = ' '.join(article_text)
+    article_text = article_text.replace("//", "")
+
+    parsed_article = article.article(title=article_header, content=article_text, created_at=datetime.datetime.now(),
+                                     origin_url=article_url)
 
     return parsed_article
 
 
-#get_content()
+def test():
+    html = scrape(base_url + "/artikler")
+    links = get_links(html)
+    json_dump = get_article_content(links)
+    print(json_dump)
 
-html1 = scrape(baseUrl + "/artikler")
 
-links = get_links(html1)
 
-get_article_content(links)
+test()
