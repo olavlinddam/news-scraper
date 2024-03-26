@@ -31,3 +31,4 @@ watchfiles==0.21.0
 websockets==12.0
 beautifulsoup4==4.12.3
 requests==2.31.0
+pymongo==4.6.2
