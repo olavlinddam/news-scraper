@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from ..dependencies import get_token_header
+from ..dependencies import get_token_header, get_db_connection
 from ..data.fake_news_db import generate_articles
+from pymongo import MongoClient
 
 router = APIRouter(
     prefix="/news",
@@ -8,6 +9,7 @@ router = APIRouter(
     dependencies=[Depends(get_token_header)],
     responses={404: {"description": "Not found"}},
 )
+
 
 # Dependency for injecting the collection object
 async def get_articles_collection():
@@ -37,7 +39,6 @@ async def get_article(article_id: int):
     for article in fake_news:
         if article.article_id == article_id:
             return article
-
 
 # @router.post("/")
 # async def create_article(article: str):
