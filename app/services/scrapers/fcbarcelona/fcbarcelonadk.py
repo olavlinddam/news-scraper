@@ -7,7 +7,7 @@ from app.models import article
 import re
 
 base_url = "https://fcbarcelona.dk"
-
+article_base_url = "https://fcbarcelona.dk/artikler"
 
 def scrape(url):
     r = requests.get(url)
@@ -30,7 +30,7 @@ def get_links(html):
     return links
 
 
-def get_articles(links):
+def get_articles_from_links(links):
     data = []
 
     for url in links:
@@ -40,9 +40,9 @@ def get_articles(links):
         data.append(parsed_article)
 
     # Convert data list to JSON format
-    json_data = json.dumps(data, default=lambda o: o.__dict__, ensure_ascii=False, indent=4)
+    ##json_data = json.dumps(data, default=lambda o: o.__dict__, ensure_ascii=False, indent=4)
 
-    return json_data
+    return data
 
 
 def parse_article_content(html, article_url):
@@ -75,11 +75,13 @@ def parse_article_content(html, article_url):
     return parsed_article
 
 
-def test():
+def get_articles():
+    print("Initial scrape. . .")
     html = scrape(base_url + "/artikler")
+    print("scraped html, parsing article links. . . ")
     links = get_links(html)
-    json_dump = get_articles(links)
-    print(json_dump)
+    print("Found links, scraping each article . . .")
+    articles = get_articles_from_links(links)
+    print("Parsed articles, returning. . .")
+    return articles
 
-
-test()
