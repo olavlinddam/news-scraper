@@ -11,12 +11,11 @@ article_base_url = "https://fcbarcelona.dk/artikler"
 
 def scrape(url):
     r = requests.get(url)
-    print(r.text)
     return r.text
 
 
 def get_links(html):
-    print("Attempting to get article links. . .")
+    print("Extracting links from html. . .")
     soup = BeautifulSoup(html, "html.parser")
     anchor_elements = soup.find_all('a')
     links = []
@@ -24,13 +23,12 @@ def get_links(html):
     for element in anchor_elements:
         href = element.get('href')
         if href and (href.startswith('/Nyheder') or href.startswith('/Video')):
-            links.append(href)  # Only append if href starts with the condition
+            links.append(href)
 
-    print(links)
-    return links
+    return list(dict.fromkeys(links))
 
 
-def get_articles_from_links(links):
+def get_content_from_articles(links):
     data = []
 
     for url in links:
@@ -39,16 +37,11 @@ def get_articles_from_links(links):
         parsed_article = parse_article_content(article_data, article_url)
         data.append(parsed_article)
 
-    # Convert data list to JSON format
-    ##json_data = json.dumps(data, default=lambda o: o.__dict__, ensure_ascii=False, indent=4)
-
     return data
 
 
 def parse_article_content(html, article_url):
     soup = BeautifulSoup(html, "html.parser")
-    article_test = soup.find('div', id='article_main')
-    print(article_test)
 
     # Remove unwanted text
     for div in soup.find_all('div', class_='custom'):
@@ -76,12 +69,13 @@ def parse_article_content(html, article_url):
 
 
 def get_articles():
-    print("Initial scrape. . .")
+    print("Attempting to get articles")
     html = scrape(base_url + "/artikler")
-    print("scraped html, parsing article links. . . ")
+    print("Scraped html. ")
     links = get_links(html)
-    print("Found links, scraping each article . . .")
-    articles = get_articles_from_links(links)
+    print("Found links")
+    articles = get_content_from_articles(links)
     print("Parsed articles, returning. . .")
     return articles
 
+get_articles()
