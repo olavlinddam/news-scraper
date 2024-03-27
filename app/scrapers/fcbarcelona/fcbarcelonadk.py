@@ -1,10 +1,10 @@
-import datetime
-
+from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
 from app.dependencies import get_db_connection
 import json
 from app.models import article
+import re
 
 base_url = "https://fcbarcelona.dk"
 
@@ -30,7 +30,7 @@ def get_links(html):
     return links
 
 
-def get_article_content(links):
+def get_articles(links):
     data = []
 
     for url in links:
@@ -40,7 +40,7 @@ def get_article_content(links):
         data.append(parsed_article)
 
     # Convert data list to JSON format
-    json_data = json.dumps(data, default=lambda o: o.__dict__)
+    json_data = json.dumps(data, default=lambda o: o.__dict__, ensure_ascii=False, indent=4)
 
     return json_data
 
@@ -50,7 +50,6 @@ def parse_article_content(html, article_url):
     article_test = soup.find('div', id='article_main')
     print(article_test)
 
-    # gpt3.5
     # Remove unwanted text
     for div in soup.find_all('div', class_='custom'):
         div.decompose()
@@ -58,17 +57,19 @@ def parse_article_content(html, article_url):
     for div in soup.find_all('div', class_='yellow'):
         div.decompose()
 
-
     # Find the first paragraph element
     article_header = soup.find('div', id='article_header').find('h1').text.strip()
-    paragraphs = soup.find_all('p')[1:]
-    article_text = [p.get_text(strip=True) for p in paragraphs]
 
-    # Join the extracted text into a single string
+    article_created_at = soup.find('div', id='article_header').find('p').text.strip()
+    article_created_at = re.match(r'(.+?)\s*-\s*(.+)', article_created_at).group(2)  # Trim for preceding text
+
+    paragraphs = soup.find_all('p')[1:]
+
+    article_text = [p.get_text(strip=True) for p in paragraphs]
     article_text = ' '.join(article_text)
     article_text = article_text.replace("//", "")
 
-    parsed_article = article.article(title=article_header, content=article_text, created_at=datetime.datetime.now(),
+    parsed_article = article.article(title=article_header, content=article_text, created_at=article_created_at,
                                      origin_url=article_url)
 
     return parsed_article
@@ -77,9 +78,8 @@ def parse_article_content(html, article_url):
 def test():
     html = scrape(base_url + "/artikler")
     links = get_links(html)
-    json_dump = get_article_content(links)
+    json_dump = get_articles(links)
     print(json_dump)
-
 
 
 test()
