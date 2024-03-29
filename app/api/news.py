@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import get_db_connection, get_token_header
 from app.models.article import article
-from app.services.scrapers.fcbarcelona.fcbarcelonadk import scrape_and_parse_articles
+from app.services.scrapers.fcbarcelona.fcbarcelonadk import scrape_for_new_articles
 from app.services.summarizer import summarize
 from app.data.article_repository import save_articles, get_articles
 import uvicorn
@@ -28,18 +28,9 @@ async def scrape():
     database_name = "articles"
     collection_name = "fc_barcelona"
 
-    # articles_full_content = scrape_and_parse_articles()
+    articles_full_content = scrape_for_new_articles()
     # articles_with_summary = summarize(articles_full_content)
-    # save_articles(articles_with_summary, database_name, collection_name)
-
-    test_article = article(
-        title="The Importance of JSON in Web Development",
-        content="JSON (JavaScript Object Notation) is a lightweight data interchange format...",
-        created_at="2022-01-01",
-        origin_url="https://example.com/json-article"
-    )
-    dict_article = test_article.to_dict()
-    save_articles(dict_article, database_name, collection_name)
+    save_articles(articles_full_content, database_name, collection_name)
 # endregion
 
 

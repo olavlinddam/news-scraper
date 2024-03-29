@@ -1,3 +1,4 @@
+import queue
 from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
@@ -8,6 +9,8 @@ import re
 
 base_url = "https://fcbarcelona.dk"
 article_base_url = "https://fcbarcelona.dk/artikler"
+fcb_news_queue = queue.Queue(maxsize=15)
+existing_titles = set()
 
 
 def scrape(url):
@@ -80,15 +83,29 @@ def parse_article_content(html, article_url):
     return parsed_article
 
 
-def scrape_and_parse_articles():
+def update_article_queue(imported_articles):
+    if imported_articles is None:
+        return
+
+    new_articles = []
+    for imported_article in imported_articles:
+        if imported_article.title not in existing_titles:
+            old_article = fcb_news_queue.get()
+            fcb_news_queue.put(imported_article)
+            existing_titles.add(imported_article.title)
+            existing_titles.remove(old_article.title)
+            new_articles.append(imported_article)
+
+    return new_articles
+
+
+def scrape_for_new_articles():
     print("Attempting to get articles")
     html = scrape(base_url + "/artikler")
     print("Scraped html. ")
     links = get_links(html)
     print("Found links")
-    articles = get_content_from_articles(links)
-    print("Parsed articles, returning. . .")
-    return articles
-
-
-
+    imported_articles = get_content_from_articles(links)
+    print("Parsed articles, checking for duplicates. . .")
+    new_articles = update_article_queue(imported_articles)
+    return new_articles

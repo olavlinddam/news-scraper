@@ -12,7 +12,7 @@ headers = {
 def summarize(articles):
     for a in articles:
         payload = {
-            "sentnum": "2",
+            "sentnum": "1",
             "text": a.content
         }
         response = requests.post(rapid_api_url, data=payload, headers=headers)
