@@ -1,12 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
-from ..dependencies import get_token_header, get_db_connection
-from ..data.fake_news_db import generate_articles
+from app.dependencies import get_db_connection, get_token_header
+from app.models.article import article
+from app.services.scrapers.fcbarcelona.fcbarcelonadk import scrape_and_parse_articles
+from app.services.summarizer import summarize
+from app.data.article_repository import save_articles, get_articles
+import uvicorn
+
 from pymongo import MongoClient
 
 router = APIRouter(
     prefix="/news",
     tags=["news"],
-    dependencies=[Depends(get_token_header)],
+    #dependencies=[Depends(get_token_header)],
     responses={404: {"description": "Not found"}},
 )
 
@@ -16,52 +21,27 @@ async def get_articles_collection():
     return Depends(get_db_connection)  # Reuse the get_db_connection function
 
 
-fake_news = generate_articles(10)
-
-
 # region endpoints
-@router.get("/")
-async def get_news():
-    return fake_news
 
+@router.get("/scrape")
+async def scrape():
+    database_name = "articles"
+    collection_name = "fc_barcelona"
 
-@router.get("/db-test")
-async def get_all_articles(articles: MongoClient = Depends(get_articles_collection)):
-    # Use the articles collection object for database operations
-    all_articles = articles.find({})  # Example query
-    return all_articles  # Return the results
+    # articles_full_content = scrape_and_parse_articles()
+    # articles_with_summary = summarize(articles_full_content)
+    # save_articles(articles_with_summary, database_name, collection_name)
 
-
-@router.get("/{article_id}")
-async def get_article(article_id: int):
-    if not article_id.is_integer():
-        raise HTTPException(status_code=400, detail="Article id must be an integer")
-    for article in fake_news:
-        if article.article_id == article_id:
-            return article
-
-# @router.post("/")
-# async def create_article(article: str):
-#     """Creates a new article and adds it to the fake_news_db.
-#
-#         Args:
-#             article: The content of the new article (as a string).
-#
-#         Returns:
-#             A JSON response with the newly created article details
-#             and its automatically generated ID.
-#         """
-#
-#     # Generate a unique ID for the new article
-#     new_article_id = f"{len(fake_news_db) + 1}"
-#
-#     # Add the new article to the database
-#     fake_news_db[new_article_id] = article
-#
-#     # Return the newly created article details
-#     return {
-#         "message": "Article created successfully!",
-#         "article": fake_news_db[new_article_id],
-#         "article_id": new_article_id,
-#     }
+    test_article = article(
+        title="The Importance of JSON in Web Development",
+        content="JSON (JavaScript Object Notation) is a lightweight data interchange format...",
+        created_at="2022-01-01",
+        origin_url="https://example.com/json-article"
+    )
+    dict_article = test_article.to_dict()
+    save_articles(dict_article, database_name, collection_name)
 # endregion
+
+
+if __name__ == "__main__":
+    uvicorn.run("app.api.news:router", host="0.0.0.0", port=8000)

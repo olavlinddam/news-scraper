@@ -9,6 +9,7 @@ import re
 base_url = "https://fcbarcelona.dk"
 article_base_url = "https://fcbarcelona.dk/artikler"
 
+
 def scrape(url):
     r = requests.get(url)
     return r.text
@@ -41,6 +42,17 @@ def get_content_from_articles(links):
 
 
 def parse_article_content(html, article_url):
+    """
+    Parse the content of an article from HTML.
+
+    Args:
+        html (str): The HTML content of the article.
+        article_url (str): The URL of the article.
+
+    Returns:
+        article.article: An instance of the article class with parsed content.
+    """
+
     soup = BeautifulSoup(html, "html.parser")
 
     # Remove unwanted text
@@ -68,7 +80,7 @@ def parse_article_content(html, article_url):
     return parsed_article
 
 
-def get_articles():
+def scrape_and_parse_articles():
     print("Attempting to get articles")
     html = scrape(base_url + "/artikler")
     print("Scraped html. ")
@@ -78,4 +90,5 @@ def get_articles():
     print("Parsed articles, returning. . .")
     return articles
 
-get_articles()
+
+

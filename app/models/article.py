@@ -10,3 +10,12 @@ class article:
         self.video_url = video_url
         self.origin_url = origin_url
 
+    def to_dict(self):
+        return {
+            "title": self.title,
+            "content": self.content,
+            "created_at": self.created_at,
+            "origin_url": self.origin_url,
+            "video_url": self.video_url,
+            "article_id": self.article_id
+        }
