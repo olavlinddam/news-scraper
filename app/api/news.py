@@ -16,8 +16,8 @@ router = APIRouter(
 
 
 # region endpoints
-@router.get("/scrape")
-async def scrape():
+@router.get("/fcbarcelona/scrape")
+async def scrape_fcb_news():
     try:
         import_fcb_news()
         return Response(status_code=status.HTTP_200_OK)
