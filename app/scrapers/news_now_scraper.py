@@ -17,7 +17,7 @@ def get_page_source(url):
     return page_source
 
 
-def get_popular_headlines_and_links(url):
+def scrape(url):
     page_source = get_page_source(url)
     soup = BeautifulSoup(page_source, 'html.parser')
 
