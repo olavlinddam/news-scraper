@@ -2,7 +2,7 @@ import queue
 
 from app.data.article_repository import save_news, get_news
 from app.models.DTOs.fcbarcelona_news_dto import FCBarcelonaNewsDTO
-from app.scrapers.news_now_scraper import get_popular_headlines_and_links
+from app.scrapers.news_now_scraper import scrape
 
 barca_news_url = "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Barcelona?type=ts"
 fcb_news_queue = queue.Queue(maxsize=10)
@@ -21,7 +21,7 @@ def import_fcb_news():
             if existing_news is not None:
                 list(map(fcb_news_queue.put, existing_news))
 
-        imported_news = get_popular_headlines_and_links(barca_news_url)
+        imported_news = scrape(barca_news_url)
         new_news = filter_existing_news(imported_news)
         update_news_queue(new_news)
         save_news(new_news, database_name, collection_name)
