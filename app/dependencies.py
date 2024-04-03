@@ -15,7 +15,7 @@ async def get_query_token(token: str):
 
 ## TODO Replace with a more generic approach, and split this responsibility into other classes
 def get_db_connection(database_name, collection_name):
-    client = MongoClient("172.18.0.2", 27017, username='user', password='pass')  # Use the correct username and password
+    client = MongoClient("mongo", 27017, username='user', password='pass')  # Use the correct username and password
     db = client[database_name]
     articles_collection = db[collection_name]
     return articles_collection

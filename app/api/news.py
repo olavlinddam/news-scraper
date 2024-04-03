@@ -1,36 +1,63 @@
-from fastapi import APIRouter, Depends, HTTPException
-from app.dependencies import get_db_connection, get_token_header
-from app.models.article import article
-from app.services.scrapers.fcbarcelona.fcbarcelonadk import scrape_for_new_articles
-from app.services.summarizer import summarize
-from app.data.article_repository import save_articles, get_articles
-import uvicorn
+import json
+import uuid
 
-from pymongo import MongoClient
+import uvicorn
+from fastapi import APIRouter, Depends, status, Response
+
+from app.services.fcbarcelona_service import import_fcb_news
+from app.services.fcbarcelona_service import get_existing_fcb_news
 
 router = APIRouter(
     prefix="/news",
     tags=["news"],
-    #dependencies=[Depends(get_token_header)],
+    # dependencies=[Depends(get_token_header)],
     responses={404: {"description": "Not found"}},
 )
 
 
-# Dependency for injecting the collection object
-async def get_articles_collection():
-    return Depends(get_db_connection)  # Reuse the get_db_connection function
-
-
 # region endpoints
-
 @router.get("/scrape")
 async def scrape():
-    database_name = "articles"
-    collection_name = "fc_barcelona"
+    try:
+        import_fcb_news()
+        return Response(status_code=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "type": "https://example.com/probs/internal-error",
+                "title": "Internal Server Error",
+                "detail": "An unexpected error occurred." + str(e),
+                "instance": str(uuid.uuid4()),
+            },
+        )
 
-    articles_full_content = scrape_for_new_articles()
-    # articles_with_summary = summarize(articles_full_content)
-    save_articles(articles_full_content, database_name, collection_name)
+
+@router.get("/fcbarcelona")
+async def get_fcb_news():
+    """
+    Retrieve articles related to FC Barcelona.
+
+    Returns:
+        dict: A dictionary containing the retrieved articles.
+    """
+    try:
+        db_news = get_existing_fcb_news()
+        return db_news
+    except Exception as e:
+        print(e)
+        return Response(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "type": "https://example.com/probs/internal-error",
+                "title": "Internal Server Error",
+                "detail": "An unexpected error occurred." + str(e),
+                "instance": str(uuid.uuid4()),
+            },
+        )
+
+
 # endregion
 
 

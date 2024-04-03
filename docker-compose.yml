@@ -1,5 +1,4 @@
-version: '3.1'
-
+version: '3'
 
 services:
 
@@ -10,8 +9,14 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=user
       - MONGO_INITDB_ROOT_PASSWORD=pass
     hostname: "mongo"
-#    ports:
-#      - "5001:27017"
+
+  selenium:
+    image: selenium/standalone-firefox:4.19.1-20240402
+    hostname: "selenium"
+    shm_size: 2gb
+    ports:
+      - "4444:4444"
+      - "7900:7900"
 
   app:
     build:
@@ -21,6 +26,6 @@ services:
       - "5000:80"
     depends_on:
       - mongo
+      - selenium
     hostname: scraper
-#    environment:
-#      - CONN_STR=mongodb://user:pass@mongodb
+

@@ -19,6 +19,11 @@ def scrape(url):
 
 
 def get_links(html):
+    """
+    Extracts links from the given HTML content and filters out certain types of links.
+    :param html: The HTML content from which links will be extracted.
+    :return: A list of unique links that start with '/Nyheder' or '/Video'.
+    """
     print("Extracting links from html. . .")
     soup = BeautifulSoup(html, "html.parser")
     anchor_elements = soup.find_all('a')
@@ -32,28 +37,31 @@ def get_links(html):
     return list(dict.fromkeys(links))
 
 
-def get_content_from_articles(links):
-    data = []
+def get_parsed_articles(links):
+    """
+    Retrieves parsed articles from the given list of links.
+
+    :param links: A list of URLs to articles.
+
+    :return: A list of parsed articles.
+    """
+    parsed_articles = []
 
     for url in links:
         article_url = base_url + url
         article_data = scrape(article_url)
         parsed_article = parse_article_content(article_data, article_url)
-        data.append(parsed_article)
+        parsed_articles.append(parsed_article)
 
-    return data
+    return parsed_articles
 
 
 def parse_article_content(html, article_url):
     """
     Parse the content of an article from HTML.
-
-    Args:
-        html (str): The HTML content of the article.
-        article_url (str): The URL of the article.
-
-    Returns:
-        article.article: An instance of the article class with parsed content.
+    :param article_url: The URL of the article.
+    :param html: The HTML content of the article.
+    :return: An instance of the article class with parsed content.
     """
 
     soup = BeautifulSoup(html, "html.parser")
@@ -83,29 +91,59 @@ def parse_article_content(html, article_url):
     return parsed_article
 
 
-def update_article_queue(imported_articles):
+def update_article_queue(new_articles):
+    """
+    Update the article queue with new articles.
+app
+    :param new_articles: a list of new articles to be added to the queue
+    :return: None
+    """
+    if new_articles is None:
+        return
+
+    for new_article in new_articles:
+        if fcb_news_queue.full():
+            fcb_news_queue.get()
+        fcb_news_queue.put(new_article)
+
+
+def filter_existing_articles(imported_articles):
+    """
+    A function that filters out existing articles from a list of imported articles.
+
+    :param imported_articles: a list of articles to filter
+
+    :return: new_articles: a list of articles that are not already in existing_titles
+    """
+
     if imported_articles is None:
         return
 
     new_articles = []
     for imported_article in imported_articles:
         if imported_article.title not in existing_titles:
-            old_article = fcb_news_queue.get()
-            fcb_news_queue.put(imported_article)
             existing_titles.add(imported_article.title)
-            existing_titles.remove(old_article.title)
             new_articles.append(imported_article)
 
     return new_articles
 
 
-def scrape_for_new_articles():
+def scrape_for_new_articles(existing_articles=None):
+    """
+    Scrapes for new articles from a base URL, parses them, filters out existing articles, updates the article queue, and returns the new articles.
+    :return: new_articles: a list of articles that are not already in existing_titles
+    """
+
+    if existing_articles is not None:
+        list(map(fcb_news_queue.put, existing_articles))
+
     print("Attempting to get articles")
     html = scrape(base_url + "/artikler")
     print("Scraped html. ")
     links = get_links(html)
     print("Found links")
-    imported_articles = get_content_from_articles(links)
+    imported_articles = get_parsed_articles(links)
     print("Parsed articles, checking for duplicates. . .")
-    new_articles = update_article_queue(imported_articles)
+    new_articles = filter_existing_articles(imported_articles)
+    update_article_queue(new_articles)
     return new_articles
