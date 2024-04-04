@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import Header, HTTPException
 from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 async def get_token_header(x_token: Annotated[str, Header()]):
@@ -13,9 +14,19 @@ async def get_query_token(token: str):
         raise HTTPException(status_code=400, detail="No Jessica token provided")
 
 
-## TODO Replace with a more generic approach, and split this responsibility into other classes
-def get_db_connection(database_name, collection_name):
-    client = MongoClient("mongo", 27017, username='user', password='pass')  # Use the correct username and password
+async def get_db_collection(database_name, collection_name):
+    """
+    Asynchronous function to get a database connection.
+
+    Args:
+        database_name: str - The name of the database.
+        collection_name: str - The name of the collection within the database.
+
+    Returns:
+        MotorCollection - The specified collection within the specified database.
+    """
+    client = AsyncIOMotorClient("172.18.0.2", 27017, username='user', password='pass')  # Connect asynchronously
+
     db = client[database_name]
-    articles_collection = db[collection_name]
-    return articles_collection
+    collection = db[collection_name]
+    return collection

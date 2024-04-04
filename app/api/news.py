@@ -19,7 +19,7 @@ router = APIRouter(
 @router.get("/scrape")
 async def scrape():
     try:
-        import_fcb_news()
+        await import_fcb_news()
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         print(e)
@@ -43,8 +43,8 @@ async def get_fcb_news():
         dict: A dictionary containing the retrieved articles.
     """
     try:
-        db_news = get_existing_fcb_news()
-        return db_news
+        existing_news = await get_existing_fcb_news()
+        return existing_news
     except Exception as e:
         print(e)
         return Response(
