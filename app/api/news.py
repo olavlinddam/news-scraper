@@ -4,8 +4,7 @@ import uuid
 import uvicorn
 from fastapi import APIRouter, Depends, status, Response
 
-from app.services.fcbarcelona_service import import_fcb_news
-from app.services.fcbarcelona_service import get_existing_fcb_news
+from app.services.fcbarcelona_service import fcbarcelona_service
 
 router = APIRouter(
     prefix="/news",
@@ -15,11 +14,15 @@ router = APIRouter(
 )
 
 
+def get_fcbarcelona_service():
+    return fcbarcelona_service()
+
+
 # region endpoints
 @router.get("/scrape")
-async def scrape():
+async def scrape(service: fcbarcelona_service = Depends(get_fcbarcelona_service)):
     try:
-        await import_fcb_news()
+        await service.import_fcb_news()
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         print(e)
@@ -35,15 +38,9 @@ async def scrape():
 
 
 @router.get("/fcbarcelona")
-async def get_fcb_news():
-    """
-    Retrieve articles related to FC Barcelona.
-
-    Returns:
-        dict: A dictionary containing the retrieved articles.
-    """
+async def get_fcb_news(service: fcbarcelona_service = Depends(get_fcbarcelona_service)):
     try:
-        existing_news = await get_existing_fcb_news()
+        existing_news = await service.get_existing_fcb_news()
         return existing_news
     except Exception as e:
         print(e)
