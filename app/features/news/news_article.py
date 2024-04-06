@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app.data.DTOs.news_article_dto import news_article_dto
+from app.features.news.news_article_dto import news_article_dto
 
 
 class news_article:

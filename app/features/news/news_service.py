@@ -1,16 +1,17 @@
-from app.data.document_dao import document_dao
-from app.models import news_article
-from app.scrapers.news_now_scraper import news_now_scraper as scraper
+from app.data.repository import document_dao
+from app.features.news import news_article
+from app.features.news.news_now_scraper import news_now_scraper as scraper
 import logging
 
 
-class fcbarcelona_service:
-    def __init__(self):
-        self.url_to_scrape = "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Barcelona?type=ts"
-        self.database_name = "news"
-        self.collection_name = "fc_barcelona"
+class news_service:
+    def __init__(self, url_to_scrape: str, database_name: str, collection_name: str):
+        self.url_to_scrape = url_to_scrape
+        self.database_name = database_name
+        self.collection_name = collection_name
         self.dao = self.get_document_dao()
         self.scraper = self.get_news_now_scraper()
+        self.logger = logging.getLogger(__name__)
 
     def get_document_dao(self):
         return document_dao(self.database_name, self.collection_name)
@@ -20,7 +21,7 @@ class fcbarcelona_service:
 
     async def import_fcb_news(self):
         try:
-            logging.info("Scraping for new FC Barcelona articles. . .")
+            self.logger.info("Scraping for new FC Barcelona articles. . .")
             dao = document_dao(self.database_name, self.collection_name)
             existing_news = await dao.get_latest_news(10)
 
@@ -40,7 +41,7 @@ class fcbarcelona_service:
                 new_news_dtos.append(news_dto)
 
         except Exception as e:
-            logging.exception("Error scraping for new articles: " + str(e))
+            self.logger.exception("Error scraping for new articles: " + str(e))
             raise Exception("Could not scrape for new articles: " + str(e))
 
     async def get_existing_fcb_news(self):
@@ -56,7 +57,7 @@ class fcbarcelona_service:
 
             return dto_list
         except Exception as e:
-            logging.exception("Error getting existing articles", str(e))
+            self.logger.exception("Error getting existing articles", str(e))
             raise Exception("Could not get existing articles", str(e))
 
     @staticmethod

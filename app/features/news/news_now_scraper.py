@@ -1,15 +1,13 @@
-from datetime import datetime, timedelta
 import time
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from contextlib import contextmanager
-import requests
+from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
-from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-from app.models.news_article import news_article
+from app.features.news.news_article import news_article
+from app.features.news.webdriver_manager import webdriver_manager
 
 
 class news_now_scraper:
@@ -17,20 +15,7 @@ class news_now_scraper:
         self.compose_selenium_url = 'http://selenium:4444/wd/hub'
         self.standalone_selenium_url = 'http://localhost:4444/wd/hub'
         self.url_to_scrape = url_to_scrape
-        self.options = webdriver.FirefoxOptions()
-        self.driver = None
-
-    @contextmanager
-    def manage_driver(self):
-        try:
-            self.driver = webdriver.Remote(
-                command_executor=self.standalone_selenium_url,
-                options=self.options
-            )
-            yield self.driver
-        finally:
-            if self.driver:
-                self.driver.quit()
+        self.driver = webdriver_manager().create_driver()
 
     def get_page_source(self, driver):
         driver.get(self.url_to_scrape)
@@ -38,16 +23,16 @@ class news_now_scraper:
         time.sleep(5)
         return page_source
 
-    def resolve_href(self, href, driver):
+    def resolve_href(self, href):
         # Use Selenium to navigate to the original href and wait for the page to load
-        driver.get(href)
+        self.driver.get(href)
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
         time.sleep(2)
         # Get the current URL after the page has loaded and any redirects have occurred
-        resolved_href = driver.current_url
+        resolved_href = self.driver.current_url
         return resolved_href
 
-    def parse(self, popular_articles, existing_news, driver):
+    def parse(self, popular_articles, existing_news):
         """Parses the news articles and returns a list of news articles"""
         news_articles = []
 
@@ -62,7 +47,7 @@ class news_now_scraper:
             href = popular_article.find('a', class_='article-card__headline')['href']
 
             # Resolve the redirect URL
-            resolved_href = self.resolve_href(href, driver)
+            resolved_href = self.resolve_href(href)
 
             hours = int(timestamp[:-1])  # Remove the 'h' and convert to int
             article_created_at = datetime.now() - timedelta(hours=hours)
@@ -73,15 +58,14 @@ class news_now_scraper:
         return news_articles
 
     def scrape(self, existing_news: list[dict[str, str]]):
-        """Scrapes for news articles and returns a list of news articles"""
-        with self.manage_driver() as driver:
-            page_source = self.get_page_source(driver)
-            soup = BeautifulSoup(page_source, 'html.parser')
-            popular_articles = soup.find(class_="newsfeed newsfeed--popular").find_all(class_="article-card__inner")[:10]
+        """Scrapes for news articles and returns a list of imported news articles"""
+        page_source = self.get_page_source(self.driver)
+        soup = BeautifulSoup(page_source, 'html.parser')
+        popular_articles = soup.find(class_="newsfeed newsfeed--popular").find_all(class_="article-card__inner")[:10]
 
-            imported_news_articles = self.parse(popular_articles, existing_news, driver)
-            return imported_news_articles
-
+        imported_news_articles = self.parse(popular_articles, existing_news)
+        webdriver_manager().dispose_driver(self.driver)
+        return imported_news_articles
 
 # if __name__ == '__main__':
 #     scraper = news_now_scraper('https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Barcelona?type=ts')

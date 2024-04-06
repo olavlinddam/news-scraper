@@ -1,10 +1,6 @@
 import queue
-from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
-from app.dependencies import get_db_connection
-import json
-from app.models import news_article
 import re
 
 base_url = "https://fcbarcelona.dk"
