@@ -9,6 +9,8 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=user
       - MONGO_INITDB_ROOT_PASSWORD=pass
     hostname: "mongo"
+    ports:
+      - "27017:27017"
 
   selenium:
     image: selenium/standalone-firefox:4.19.1-20240402

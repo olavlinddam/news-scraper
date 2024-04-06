@@ -15,15 +15,15 @@ class document_dao:
 
     async def get_db_collection(self):
         """
-        Asynchronous function to get a database connection."https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Barcelona?type=ts")
+        Asynchronous function to get a database connection.
 
         Returns:
             MotorCollection - The specified collection within the specified database.
         """
         try:
-            self.logger.info("Connecting to the database to fetch the " + self.collection_name + "collection.")
-            self.client = AsyncIOMotorClient("172.18.0.2", 27017, username='user',
-                                             password='pass')  # Connect asynchronously
+            self.logger.info("Connecting to the database.")
+            self.client = AsyncIOMotorClient("localhost", 27017, username='user', password='pass')  # Connect
+            # asynchronously
             self.db = self.client[self.database_name]
             self.collection = self.db[self.collection_name]
             return self.collection
@@ -39,7 +39,7 @@ class document_dao:
         if self.collection is None:
             await self.get_db_collection()
         try:
-            self.logger.info("Connecting to the database to save documents to the " + self.collection_name + "collection.")
+            self.logger.info("Attempting to save documents to the " + self.collection_name + "collection.")
             await self.collection.insert_many(documents, ordered=True)
             # If insert_many completes without raising an exception, the operation was successful.
             self.logger.info("Documents saved successfully.")
@@ -59,7 +59,7 @@ class document_dao:
             await self.get_db_collection()
 
         try:
-            self.logger.info("Connecting to the database to fetch documents from the " + self.collection_name + "collection.")
+            self.logger.info("Attempting to fetch documents from the " + self.collection_name + "collection.")
             news_cursor = self.collection.find({}).limit(limit)
             db_news = [news for news in await news_cursor.to_list(length=100)]
             return db_news
@@ -78,7 +78,7 @@ class document_dao:
             await self.get_db_collection()
 
         try:
-            self.logger.info("Connecting to the database to fetch the latest news from the " + self.collection_name + " collection.")
+            self.logger.info("Attempting to fetch the latest news from the " + self.collection_name + " collection.")
             # Sort by 'created_at' in descending order to get the latest news first
             news_cursor = self.collection.find({}).sort("created_at", -1).limit(limit)
             latest_news = [news for news in await news_cursor.to_list(length=limit)]

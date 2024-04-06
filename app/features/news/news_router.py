@@ -16,8 +16,8 @@ news_router = APIRouter(
 )
 
 
-def get_news_service(url_to_scrape: str, database_name: str, collection_name: str):
-    return news_service(url_to_scrape, database_name, collection_name)
+def get_news_service(database_name: str, collection_name: str, url_to_scrape: str = None):
+    return news_service(database_name, collection_name, url_to_scrape)
 
 
 @news_router.get("/scrape/{club}")
@@ -30,8 +30,8 @@ async def scrape_news(club: str):
         database_name = "news"
         collection_name = f"{club.lower()}"
 
-        service = get_news_service(url_to_scrape, database_name, collection_name)
-        await service.import_fcb_news()
+        service = get_news_service(database_name, collection_name, url_to_scrape)
+        await service.import_news()
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         return Response(
@@ -45,10 +45,13 @@ async def scrape_news(club: str):
         )
 
 
-@news_router.get("/fcbarcelona")
-async def get_fcb_news(service: news_service = Depends(get_news_service)):
+@news_router.get("/{club}")
+async def get_news(club: str):
     try:
-        existing_news = await service.get_existing_fcb_news()
+        database_name = "news"
+        collection_name = f"{club.lower()}"
+        service = get_news_service(database_name, collection_name, None)
+        existing_news = await service.get_existing_news()
         return existing_news
     except Exception as e:
         print(e)

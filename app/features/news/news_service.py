@@ -5,23 +5,24 @@ import logging
 
 
 class news_service:
-    def __init__(self, url_to_scrape: str, database_name: str, collection_name: str):
-        self.url_to_scrape = url_to_scrape
+    def __init__(self, database_name: str, collection_name: str, url_to_scrape: str = None):
         self.database_name = database_name
         self.collection_name = collection_name
         self.dao = self.get_document_dao()
-        self.scraper = self.get_news_now_scraper()
         self.logger = logging.getLogger(__name__)
+        self.url_to_scrape = url_to_scrape
+        self.scraper = self.get_news_now_scraper()
 
     def get_document_dao(self):
         return document_dao(self.database_name, self.collection_name)
 
     def get_news_now_scraper(self):
-        return scraper(self.url_to_scrape)
+        if self.url_to_scrape:
+            return scraper(self.url_to_scrape)
 
-    async def import_fcb_news(self):
+    async def import_news(self):
         try:
-            self.logger.info("Scraping for new FC Barcelona articles. . .")
+            self.logger.info("Initializing news import for " + self.collection_name)
             dao = document_dao(self.database_name, self.collection_name)
             existing_news = await dao.get_latest_news(10)
 
@@ -41,10 +42,10 @@ class news_service:
                 new_news_dtos.append(news_dto)
 
         except Exception as e:
-            self.logger.exception("Error scraping for new articles: " + str(e))
+            self.logger.exception("Error scraping the latest news: %s", e)
             raise Exception("Could not scrape for new articles: " + str(e))
 
-    async def get_existing_fcb_news(self):
+    async def get_existing_news(self):
         try:
             dao = document_dao(self.database_name, self.collection_name)
             news_article_documents = await dao.get_latest_news(10)

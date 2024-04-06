@@ -1,4 +1,6 @@
 import time
+import logging
+
 from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
@@ -16,8 +18,10 @@ class news_now_scraper:
         self.standalone_selenium_url = 'http://localhost:4444/wd/hub'
         self.url_to_scrape = url_to_scrape
         self.driver = webdriver_manager().create_driver()
+        self.logger = logging.getLogger(__name__)
 
     def get_page_source(self, driver):
+        self.logger.info(f"Scraping: %s", self.url_to_scrape)
         driver.get(self.url_to_scrape)
         page_source = driver.page_source
         time.sleep(5)
@@ -34,6 +38,8 @@ class news_now_scraper:
 
     def parse(self, popular_articles, existing_news):
         """Parses the news articles and returns a list of news articles"""
+        self.logger.info(f"Parsing page source.")
+
         news_articles = []
 
         for popular_article in popular_articles:

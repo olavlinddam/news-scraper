@@ -1,0 +1,83 @@
+2024-04-06 21:05:05,967 - INFO - Driver created: <selenium.webdriver.remote.webdriver.WebDriver (session="3d6c47cf-98b0-4c2b-ac73-a09c2a07bcd6")>, Total open drivers: 1
+2024-04-06 21:05:05,968 - INFO - Scraping for new FC Barcelona articles. . .
+2024-04-06 21:05:05,968 - INFO - Connecting to the database to fetch the fcbarcelonacollection.
+2024-04-06 21:05:05,974 - INFO - Connecting to the database to fetch the latest news from the fcbarcelona collection.
+2024-04-06 21:05:36,136 - ERROR - Error scraping for new articles: Could not retrieve the latest news: 172.18.0.2:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 66119ce1ec54a4d11e29546c, topology_type: Unknown, servers: [<ServerDescription ('172.18.0.2', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('172.18.0.2:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+Traceback (most recent call last):
+  File "C:\Repos\news-scraper\app\data\repository.py", line 84, in get_latest_news
+    latest_news = [news for news in await news_cursor.to_list(length=limit)]
+  File "C:\Users\Olav\AppData\Local\Programs\Python\Python39\lib\asyncio\futures.py", line 284, in __await__
+    yield self  # This tells Task to wait for completion.
+  File "C:\Users\Olav\AppData\Local\Programs\Python\Python39\lib\asyncio\tasks.py", line 328, in __wakeup
+    future.result()
+  File "C:\Users\Olav\AppData\Local\Programs\Python\Python39\lib\asyncio\futures.py", line 201, in result
+    raise self._exception
+  File "C:\Repos\news-scraper\venv\lib\site-packages\motor\core.py", line 1683, in _to_list
+    result = get_more_result.result()
+  File "C:\Users\Olav\AppData\Local\Programs\Python\Python39\lib\asyncio\futures.py", line 201, in result
+    raise self._exception
+  File "C:\Users\Olav\AppData\Local\Programs\Python\Python39\lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "C:\Repos\news-scraper\venv\lib\site-packages\pymongo\cursor.py", line 1155, in _refresh
+    self.__session = self.__collection.database.client._ensure_session()
+  File "C:\Repos\news-scraper\venv\lib\site-packages\pymongo\mongo_client.py", line 1823, in _ensure_session
+    return self.__start_session(True, causal_consistency=False)
+  File "C:\Repos\news-scraper\venv\lib\site-packages\pymongo\mongo_client.py", line 1766, in __start_session
+    self._topology._check_implicit_session_support()
+  File "C:\Repos\news-scraper\venv\lib\site-packages\pymongo\topology.py", line 573, in _check_implicit_session_support
+    self._check_session_support()
+  File "C:\Repos\news-scraper\venv\lib\site-packages\pymongo\topology.py", line 589, in _check_session_support
+    self._select_servers_loop(
+  File "C:\Repos\news-scraper\venv\lib\site-packages\pymongo\topology.py", line 259, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 172.18.0.2:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 66119ce1ec54a4d11e29546c, topology_type: Unknown, servers: [<ServerDescription ('172.18.0.2', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('172.18.0.2:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Repos\news-scraper\app\features\news\news_service.py", line 26, in import_fcb_news
+    existing_news = await dao.get_latest_news(10)
+  File "C:\Repos\news-scraper\app\data\repository.py", line 88, in get_latest_news
+    raise Exception("Could not retrieve the latest news: " + str(e))
+Exception: Could not retrieve the latest news: 172.18.0.2:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 66119ce1ec54a4d11e29546c, topology_type: Unknown, servers: [<ServerDescription ('172.18.0.2', 27017) server_type: Unknown, rtt: None, error=NetworkTimeout('172.18.0.2:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2024-04-06 21:08:22,505 - INFO - Closing driver: <selenium.webdriver.remote.webdriver.WebDriver (session="3d6c47cf-98b0-4c2b-ac73-a09c2a07bcd6")>
+2024-04-06 21:08:23,609 - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-1' coro=<Server.serve() done, defined at C:\Repos\news-scraper\venv\lib\site-packages\uvicorn\server.py:67> exception=KeyboardInterrupt()>
+Traceback (most recent call last):
+  File "C:\Program Files\JetBrains\PyCharm 2023.3.4\plugins\python\helpers\pydev\pydevd.py", line 2235, in <module>
+    main()
+  File "C:\Program Files\JetBrains\PyCharm 2023.3.4\plugins\python\helpers\pydev\pydevd.py", line 2217, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+  File "C:\Program Files\JetBrains\PyCharm 2023.3.4\plugins\python\helpers\pydev\pydevd.py", line 1527, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+  File "C:\Program Files\JetBrains\PyCharm 2023.3.4\plugins\python\helpers\pydev\pydevd.py", line 1534, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+  File "C:\Program Files\JetBrains\PyCharm 2023.3.4\plugins\python\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+  File "C:\Repos\news-scraper\app\main.py", line 32, in <module>
+    uvicorn.run(app, host="0.0.0.0", port=8000)  # Run the FastAPI app with Uvicorn
+  File "C:\Repos\news-scraper\venv\lib\site-packages\uvicorn\main.py", line 575, in run
+    server.run()
+  File "C:\Repos\news-scraper\venv\lib\site-packages\uvicorn\server.py", line 65, in run
+    return asyncio.run(self.serve(sockets=sockets))
+  File "C:\Program Files\JetBrains\PyCharm 2023.3.4\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 120, in run
+    return loop.run_until_complete(task)
+  File "C:\Program Files\JetBrains\PyCharm 2023.3.4\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 202, in run_until_complete
+    self._run_once()
+  File "C:\Program Files\JetBrains\PyCharm 2023.3.4\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 254, in _run_once
+    handle._run()
+  File "C:\Users\Olav\AppData\Local\Programs\Python\Python39\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\Olav\AppData\Local\Programs\Python\Python39\lib\asyncio\tasks.py", line 339, in __wakeup
+    self.__step()
+  File "C:\Program Files\JetBrains\PyCharm 2023.3.4\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 363, in step
+    step_orig(task, exc)
+  File "C:\Users\Olav\AppData\Local\Programs\Python\Python39\lib\asyncio\tasks.py", line 256, in __step
+    result = coro.send(None)
+  File "C:\Repos\news-scraper\venv\lib\site-packages\uvicorn\server.py", line 69, in serve
+    await self._serve(sockets)
+  File "C:\Users\Olav\AppData\Local\Programs\Python\Python39\lib\contextlib.py", line 126, in __exit__
+    next(self.gen)
+  File "C:\Repos\news-scraper\venv\lib\site-packages\uvicorn\server.py", line 328, in capture_signals
+    signal.raise_signal(captured_signal)
+KeyboardInterrupt
