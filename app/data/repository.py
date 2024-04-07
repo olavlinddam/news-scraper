@@ -86,3 +86,11 @@ class document_dao:
         except Exception as e:
             self.logger.exception("Error retrieving the latest news:", e)
             raise Exception("Could not retrieve the latest news: " + str(e))
+
+    # async def close_db_connection(self):
+    #     if self.client is not None:
+    #         self.logger.info("Closing database connection.")
+    #         self.client.close()
+    #         self.client = None
+    #         self.db = None
+    #         self.collection = None
