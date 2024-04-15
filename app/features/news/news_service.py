@@ -1,4 +1,4 @@
-from app.data.repository import document_dao
+from app.data.repository import repository
 from app.features.news import news_article
 from app.features.news.news_now_scraper import news_now_scraper as scraper
 import logging
@@ -8,13 +8,11 @@ class news_service:
     def __init__(self, database_name: str, collection_name: str, url_to_scrape: str = None):
         self.database_name = database_name
         self.collection_name = collection_name
-        self.dao = self.get_document_dao()
+        self.repository = repository(self.database_name, self.collection_name)
         self.logger = logging.getLogger(__name__)
         self.url_to_scrape = url_to_scrape
         self.scraper = self.get_news_now_scraper()
 
-    def get_document_dao(self):
-        return document_dao(self.database_name, self.collection_name)
 
     def get_news_now_scraper(self):
         if self.url_to_scrape:
@@ -23,7 +21,7 @@ class news_service:
     async def import_news(self):
         try:
             self.logger.info("Initializing news import for " + self.collection_name)
-            dao = document_dao(self.database_name, self.collection_name)
+            dao = repository(self.database_name, self.collection_name)
             existing_news = await dao.get_latest_news(10)
 
             imported_news = self.scraper.scrape(existing_news)
@@ -47,8 +45,9 @@ class news_service:
 
     async def get_existing_news(self):
         try:
-            dao = document_dao(self.database_name, self.collection_name)
-            news_article_documents = await dao.get_latest_news(10)
+            repo = repository(self.database_name, self.collection_name)
+            sub = await repo.get_subscriber("https://www.foxnews.com")
+            news_article_documents = await repo.get_latest_news(10)
 
             # Convert the MongoDB documents to news_article objects. This way we enforce validation
             news_articles = [news_article.from_dict(news) for news in news_article_documents]

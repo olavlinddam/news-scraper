@@ -5,7 +5,7 @@ import uvicorn
 from fastapi import APIRouter, Depends, status, Response
 
 from app.features.news.news_service import news_service
-from app.features.news.url_resolver import url_resolver
+from app.features.news.club_url_resolver import club_url_resolver
 
 logger = logging.getLogger(__name__)
 news_router = APIRouter(
@@ -23,7 +23,7 @@ def get_news_service(database_name: str, collection_name: str, url_to_scrape: st
 @news_router.get("/scrape/{club}")
 async def scrape_news(club: str):
     try:
-        url_to_scrape = url_resolver().resolve(club)
+        url_to_scrape = club_url_resolver().resolve_url(club)
         if url_to_scrape == "URL not found":
             return Response(status_code=status.HTTP_404_NOT_FOUND, content="Club not found")
 

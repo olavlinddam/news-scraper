@@ -2,6 +2,7 @@ import logging
 from fastapi import FastAPI
 
 from app.features.news.news_router import news_router
+from app.features.subscription.subscription_router import subscription_router
 
 logger = logging.getLogger(__name__)
 
@@ -15,4 +16,6 @@ def configure_fast_api():
     #     shutdown_event()
 
     app.include_router(news_router)
+    app.include_router(subscription_router)
+
     return app  # Return the FastAPI app instance

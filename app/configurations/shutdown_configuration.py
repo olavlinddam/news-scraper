@@ -1,7 +1,7 @@
 import signal
 import sys
 
-from app.data.repository import document_dao
+from app.data.repository import repository
 from app.features.news.webdriver_manager import webdriver_manager
 import logging
 

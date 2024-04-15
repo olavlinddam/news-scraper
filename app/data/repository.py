@@ -1,10 +1,13 @@
 import logging
 
+from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ServerSelectionTimeoutError
 
+from app.features.subscription.subscriber import subscriber
 
-class document_dao:
+
+class repository:
     def __init__(self, database_name, collection_name):
         self.database_name = database_name
         self.collection_name = collection_name
@@ -60,9 +63,9 @@ class document_dao:
 
         try:
             self.logger.info("Attempting to fetch documents from the " + self.collection_name + "collection.")
-            news_cursor = self.collection.find({}).limit(limit)
-            db_news = [news for news in await news_cursor.to_list(length=100)]
-            return db_news
+            cursor = self.collection.find({}).limit(limit)
+            documents = [document for document in await cursor.to_list(length=100)]
+            return documents
         except Exception as e:
             self.logger.exception("Error retrieving documents:", e)
             raise Exception("Could not retrieve news: " + str(e))
@@ -87,10 +90,45 @@ class document_dao:
             self.logger.exception("Error retrieving the latest news:", e)
             raise Exception("Could not retrieve the latest news: " + str(e))
 
-    # async def close_db_connection(self):
-    #     if self.client is not None:
-    #         self.logger.info("Closing database connection.")
-    #         self.client.close()
-    #         self.client = None
-    #         self.db = None
-    #         self.collection = None
+    async def get_subscriber(self, url):
+        if self.collection is None:
+            await self.get_db_collection()
+
+        try:
+            self.logger.info("Attempting to fetch the subscriber with the url: " + url)
+            existing_subscriber = await self.collection.find_one({"url": url})
+
+            #logging.info("Subscriber found: " + str(existing_subscriber["id"]))
+            return existing_subscriber
+        except Exception as e:
+            self.logger.exception("Error retrieving the subscriber:", e)
+            raise Exception("Could not retrieve the subscriber: " + str(e))
+        
+        
+    async def update_document(self, id, update):
+        """
+        Updates a single document in the collection that matches the filter.
+
+        :param filter: A dictionary specifying the criteria for the document to update.
+        :param update: A dictionary specifying the update operations to perform.
+        """
+        if self.collection is None:
+            await self.get_db_collection()
+            
+        try:
+            # Ensure the _id is correctly formatted as an ObjectId
+            # if id:
+            #     filter = ObjectId(filter["_id"])
+            
+            self.logger.info("Attempting to update a document in the " + self.collection_name + " collection.")
+            result = await self.collection.update_one({"_id": ObjectId(id)}, update)
+            
+            if result.modified_count > 0:
+                self.logger.info("Document updated successfully.")
+            else:
+                message = "No documents matched the filter criteria."
+                self.logger.info(message)
+                raise Exception(message)
+        except Exception as e:
+            self.logger.exception("Error updating document:", e)
+            raise Exception("Could not update document: " + str(e)) from e

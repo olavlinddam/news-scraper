@@ -1,2 +1,2 @@
-GET http://localhost:8000/news/scrape/fcbarcelona
+GET http://localhost:8000/news/scrape/manchester_united
 Accept: application/json
