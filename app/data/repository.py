@@ -129,6 +129,7 @@ class repository:
                 message = "No documents matched the filter criteria."
                 self.logger.info(message)
                 raise Exception(message)
+                
         except Exception as e:
             self.logger.exception("Error updating document:", e)
             raise Exception("Could not update document: " + str(e)) from e

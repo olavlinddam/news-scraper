@@ -1,0 +1,7 @@
+POST http://localhost:8000/subscription/subscribe
+Content-Type: application/json
+
+{
+    "url": "test",
+    "club": "inter"
+}
