@@ -33,11 +33,13 @@ class news_service:
             new_news_documents = [article.to_dict() for article in imported_news]
             await dao.save_documents(new_news_documents)
 
+            # TODO: Add new news to the redis cache
+
             # Push the new news to the subscribers
-            new_news_dtos = []
-            for new_news_article in imported_news:
-                news_dto = new_news_article.to_article_dto()
-                new_news_dtos.append(news_dto)
+            # new_news_dtos = []
+            # for new_news_article in imported_news:
+            #     news_dto = new_news_article.to_article_dto()
+            #     new_news_dtos.append(news_dto)
 
         except Exception as e:
             self.logger.exception("Error scraping the latest news: %s", e)

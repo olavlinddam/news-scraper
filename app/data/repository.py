@@ -128,8 +128,18 @@ class repository:
             else:
                 message = "No documents matched the filter criteria."
                 self.logger.info(message)
-                raise Exception(message)
+                raise DocumentNotFoundError(message)
                 
+        except DocumentNotFoundError as e:
+            raise DocumentNotFoundError("No document matched the filter criteria.")
         except Exception as e:
             self.logger.exception("Error updating document:", e)
             raise Exception("Could not update document: " + str(e)) from e
+        
+        
+#region Errors
+class DocumentNotFoundError(Exception):
+    "Raised when no document matched the filter"
+    pass
+
+#endregion
