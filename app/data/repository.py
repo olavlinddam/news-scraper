@@ -120,7 +120,7 @@ class repository:
             # if id:
             #     filter = ObjectId(filter["_id"])
             
-            self.logger.info("Attempting to update a document in the " + self.collection_name + " collection.")
+            self.logger.info(f"Attempting to update document with id {id} in the {self.collection_name}collection.")
             result = await self.collection.update_one({"_id": ObjectId(id)}, update)
             
             if result.modified_count > 0:

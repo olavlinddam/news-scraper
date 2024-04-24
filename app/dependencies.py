@@ -1,4 +1,5 @@
 from typing import Annotated
+from bson import UuidRepresentation
 from fastapi import Header, HTTPException
 from pymongo import MongoClient
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -26,7 +27,8 @@ async def get_db_collection(database_name, collection_name):
         MotorCollection - The specified collection within the specified database.
     """
     client = AsyncIOMotorClient("172.18.0.2", 27017, username='user', password='pass')  # Connect asynchronously
-
+    client.uuid_representation = UuidRepresentation.STANDARD
+    
     db = client[database_name]
     collection = db[collection_name]
     return collection

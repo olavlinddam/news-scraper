@@ -1,5 +1,5 @@
 from app.data.repository import repository
-from app.features.news import news_article
+from app.features.news.news_article import news_article
 from app.features.news.news_now_scraper import news_now_scraper as scraper
 import logging
 

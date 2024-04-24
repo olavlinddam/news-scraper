@@ -1,11 +1,12 @@
 from typing import List
-
+from bson import ObjectId
 
 class subscriber:
     def __init__(self, url: str, subscribed_to: List[str], _id=None):
         if _id is None:
-            self._id = None
-        self._id = _id
+            self._id = ObjectId()
+        else:
+            self._id = ObjectId(_id)
         self.url = url
         self.subscribed_to = subscribed_to
 

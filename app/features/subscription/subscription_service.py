@@ -21,6 +21,7 @@ class subscription_service:
                 await self.repository.save_documents([new_subscriber.to_dict()])
 
             else:
+                self.logger.info(f"Subscriber found with id: '{existing_subscriber_document["_id"]}'. Updating club list.")
                 existing_subscriber: subscriber = subscriber(existing_subscriber_document["url"],
                                                              existing_subscriber_document["subscribed_to"],
                                                              existing_subscriber_document["_id"])
