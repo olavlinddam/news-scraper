@@ -4,9 +4,9 @@ import uuid
 
 from fastapi import APIRouter, status, Response
 
-from app.features.news.club_url_resolver import club_url_resolver
-from app.features.subscription.subscription_request import subscription_request
-from app.features.subscription.subscription_service import subscription_service
+from app.features.news.club_url_resolver import ClubUrlResolver
+from app.features.subscription.subscription_request import SubscriptionRequest
+from app.features.subscription.subscription_service import SubscriptionService
 
 logger = logging.getLogger(__name__)
 subscription_router = APIRouter(
@@ -19,16 +19,13 @@ subscription_router = APIRouter(
 
         
 @subscription_router.post("/subscribe")
-async def subscribe(subscriber: subscription_request):
+async def subscribe(subscriber: SubscriptionRequest):
     try:
-        database_name = "subscription"
-        collection_name = "subscriptions"
-
-        club = club_url_resolver().check_club_match(club=subscriber.club)
+        club = ClubUrlResolver().check_club_match(club=subscriber.club)
         if club == "Club not found":
             return Response(status_code=status.HTTP_404_NOT_FOUND, content="Club not found")
 
-        service = subscription_service(database_name, collection_name)
+        service = SubscriptionService("subscribers")
         await service.process_subscription(subscriber)        
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:

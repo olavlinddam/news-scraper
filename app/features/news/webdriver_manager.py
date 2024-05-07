@@ -3,7 +3,7 @@ import logging
 from selenium import webdriver
 
 
-class webdriver_manager:
+class WebdriverManager:
     # Class variable to hold the single instance of the webdriver_manager class
     _instance = None
 
@@ -11,7 +11,7 @@ class webdriver_manager:
         # Check if an instance of the class already exists
         if not cls._instance:
             # If not, create a new instance and assign it to the class variable
-            cls._instance = super(webdriver_manager, cls).__new__(cls, *args, **kwargs)
+            cls._instance = super(WebdriverManager, cls).__new__(cls, *args, **kwargs)
         # Return the existing instance, ensuring only one instance of the class exists
         return cls._instance
 

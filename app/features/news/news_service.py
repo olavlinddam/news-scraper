@@ -1,58 +1,62 @@
-from app.data.repository import repository
-from app.features.news.news_article import news_article
-from app.features.news.news_now_scraper import news_now_scraper as scraper
+from typing import List
+from app.data.repository import Repository
+from app.features.news.news_article import NewsArticle
+from app.features.news.news_now_scraper import NewsNowScraper
 import logging
 
 
-class news_service:
-    def __init__(self, database_name: str, collection_name: str, url_to_scrape: str = None):
-        self.database_name = database_name
-        self.collection_name = collection_name
-        self.repository = repository(self.database_name, self.collection_name)
+class NewsService:
+    def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.url_to_scrape = url_to_scrape
-        self.scraper = self.get_news_now_scraper()
 
 
-    def get_news_now_scraper(self):
-        if self.url_to_scrape:
-            return scraper(self.url_to_scrape)
-
-    async def import_news(self):
+    async def import_news(self, clubs_urls: dict) -> list[NewsArticle]:
         try:
-            self.logger.info("Initializing news import for " + self.collection_name)
-            dao = repository(self.database_name, self.collection_name)
-            existing_news = await dao.get_latest_news(10)
+            self.logger.info("Initializing news import...")
+            
+            all_imported_news = []
 
-            imported_news = self.scraper.scrape(existing_news)
+            for club_name, club_url in clubs_urls.items():
+                dao = Repository("news", club_name)
+                existing_news = await dao.get_latest_news(10)
 
-            if not imported_news:
+                imported_news = NewsNowScraper(club_url).scrape(existing_news, club_name)
+                new_articles = [article.to_dict() for article in imported_news]
+                # all_imported_news.append(new_articles)
+                
+                if len(new_articles) != 0:
+                    await dao.save_documents(new_articles)
+                    all_imported_news.append(imported_news)
+
+                
+                
+            if len(all_imported_news) == 0:
                 logging.info("No new articles found. . .")
                 return
 
-            new_news_documents = [article.to_dict() for article in imported_news]
-            await dao.save_documents(new_news_documents)
+            return all_imported_news
+            # all_new_news_documents = []
+            # for list_of_news in all_imported_news:
+            #     new_news_documents = [article.to_dict() for article in list_of_news]
+            #     all_new_news_documents.append(new_news_documents)
+            #     await dao.save_documents(new_news_documents)
 
             # TODO: Add new news to the redis cache
-
-            # Push the new news to the subscribers
-            # new_news_dtos = []
-            # for new_news_article in imported_news:
-            #     news_dto = new_news_article.to_article_dto()
-            #     new_news_dtos.append(news_dto)
+            all_articles_flattened = [article for club_articles in all_imported_news for article in club_articles]
+            return all_articles_flattened
 
         except Exception as e:
             self.logger.exception("Error scraping the latest news: %s", e)
             raise Exception("Could not scrape for new articles: " + str(e))
 
-    async def get_existing_news(self):
+    async def get_existing_news(self, database_name, collection_name):
         try:
-            repo = repository(self.database_name, self.collection_name)
+            repo = Repository(database_name, collection_name)
             sub = await repo.get_subscriber("https://www.foxnews.com")
             news_article_documents = await repo.get_latest_news(10)
 
             # Convert the MongoDB documents to news_article objects. This way we enforce validation
-            news_articles = [news_article.from_dict(news) for news in news_article_documents]
+            news_articles = [NewsArticle.from_dict(news) for news in news_article_documents]
 
             # Convert the news_article objects to DTOs
             dto_list = [article.to_article_dto() for article in news_articles]
@@ -63,7 +67,7 @@ class news_service:
             raise Exception("Could not get existing articles", str(e))
 
     @staticmethod
-    def find_new_news(imported_news: list[news_article], existing_news):
+    def find_new_news(imported_news: list[NewsArticle], existing_news):
         existing_titles = {article['title'] for article in existing_news}
 
         new_news = []

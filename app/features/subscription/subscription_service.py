@@ -1,28 +1,29 @@
 import logging
+from typing import List
 
-from app.features.subscription.subscriber import subscriber
-from app.features.subscription.subscription_request import subscription_request
-from app.data.repository import repository
+from app.features.subscription.subscriber import Subscriber
+from app.features.subscription.subscription_request import SubscriptionRequest
+from app.data.repository import Repository
 
 
-class subscription_service:
-    def __init__(self, database_name, collection_name):
-        self.database_name = database_name
+class SubscriptionService:
+    def __init__(self, collection_name: str):
+        self.database_name = "subscription"
         self.collection_name = collection_name
         self.logger = logging.getLogger(__name__)
-        self.repository = repository(self.database_name, self.collection_name)
+        self.repository = Repository(self.database_name, self.collection_name)
 
-    async def process_subscription(self, request: subscription_request):
+    async def process_subscription(self, request: SubscriptionRequest):
         try:
             existing_subscriber_document = await self.repository.get_subscriber(request.url)
 
             if existing_subscriber_document is None:
-                new_subscriber = subscriber(url=request.url, subscribed_to=[request.club])
+                new_subscriber = Subscriber(url=request.url, subscribed_to=[request.club])
                 await self.repository.save_documents([new_subscriber.to_dict()])
 
             else:
-                self.logger.info(f"Subscriber found with id: '{existing_subscriber_document["_id"]}'. Updating club list.")
-                existing_subscriber: subscriber = subscriber(existing_subscriber_document["url"],
+                self.logger.info(f"Subscriber found with id: '{existing_subscriber_document['_id']}'. Updating club list.")
+                existing_subscriber: Subscriber = Subscriber(existing_subscriber_document["url"],
                                                              existing_subscriber_document["subscribed_to"],
                                                              existing_subscriber_document["_id"])
 
@@ -35,3 +36,13 @@ class subscription_service:
         except Exception as e:
             self.logger.exception("Error processing subscription:", e)
             raise Exception("Could not process subscription: " + str(e))
+
+
+    async def get_subscribers(self, clubs: List[str]):
+        if len(clubs) == 0:
+            self.logger.info("Error fetching subscribers: 'Provided list of clubs is empty'")
+            return        
+        
+        
+        subscribers = await self.repository.get_subscribers_by_clubs(clubs)
+        return subscribers

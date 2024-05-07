@@ -8,16 +8,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from app.features.news.news_article import news_article
-from app.features.news.webdriver_manager import webdriver_manager
+from app.features.news.news_article import NewsArticle
+from app.features.news.webdriver_manager import WebdriverManager
 
 
-class news_now_scraper:
+class NewsNowScraper:
     def __init__(self, url_to_scrape: str):
         self.compose_selenium_url = 'http://selenium:4444/wd/hub'
         self.standalone_selenium_url = 'http://localhost:4444/wd/hub'
         self.url_to_scrape = url_to_scrape
-        self.driver = webdriver_manager().create_driver()
+        self.driver = WebdriverManager().create_driver()
         self.logger = logging.getLogger(__name__)
 
     def get_page_source(self, driver):
@@ -36,7 +36,7 @@ class news_now_scraper:
         resolved_href = self.driver.current_url
         return resolved_href
 
-    def parse(self, popular_articles, existing_news):
+    def parse(self, popular_articles, existing_news, club):
         """Parses the news articles and returns a list of news articles"""
         self.logger.info(f"Parsing page source.")
 
@@ -58,19 +58,19 @@ class news_now_scraper:
             hours = int(timestamp[:-1])  # Remove the 'h' and convert to int
             article_created_at = datetime.now() - timedelta(hours=hours)
             article_created_at_str = article_created_at.strftime("%Y-%m-%d %H:%M:%S")
-            article = news_article(headline, article_created_at_str, resolved_href)
+            article = NewsArticle(club, headline, article_created_at_str, resolved_href)
             news_articles.append(article)
 
         return news_articles
 
-    def scrape(self, existing_news: list[dict[str, str]]):
+    def scrape(self, existing_news: list[dict[str, str]], club):
         """Scrapes for news articles and returns a list of imported news articles"""
         page_source = self.get_page_source(self.driver)
         soup = BeautifulSoup(page_source, 'html.parser')
         popular_articles = soup.find(class_="newsfeed newsfeed--popular").find_all(class_="article-card__inner")[:10]
 
-        imported_news_articles = self.parse(popular_articles, existing_news)
-        webdriver_manager().dispose_driver(self.driver)
+        imported_news_articles = self.parse(popular_articles, existing_news, club)
+        WebdriverManager().dispose_driver(self.driver)
         return imported_news_articles
 
 # if __name__ == '__main__':

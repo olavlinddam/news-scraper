@@ -1,7 +1,7 @@
 from typing import List
 from bson import ObjectId
 
-class subscriber:
+class Subscriber:
     def __init__(self, url: str, subscribed_to: List[str], _id=None):
         if _id is None:
             self._id = ObjectId()

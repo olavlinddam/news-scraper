@@ -1,13 +1,14 @@
 import logging
+from typing import List
 
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ServerSelectionTimeoutError
 
-from app.features.subscription.subscriber import subscriber
+from app.features.subscription.subscriber import Subscriber
 
 
-class repository:
+class Repository:
     def __init__(self, database_name, collection_name):
         self.database_name = database_name
         self.collection_name = collection_name
@@ -42,7 +43,7 @@ class repository:
         if self.collection is None:
             await self.get_db_collection()
         try:
-            self.logger.info("Attempting to save documents to the " + self.collection_name + "collection.")
+            self.logger.info("Attempting to save documents to the " + self.collection_name + " collection.")
             await self.collection.insert_many(documents, ordered=True)
             # If insert_many completes without raising an exception, the operation was successful.
             self.logger.info("Documents saved successfully.")
@@ -136,6 +137,26 @@ class repository:
             self.logger.exception("Error updating document:", e)
             raise Exception("Could not update document: " + str(e)) from e
         
+    async def get_subscribers_by_clubs(self, clubs: List[str]):
+        """
+        Fetches all subscribers that are subscribed to any club in the provided list.
+
+        :param clubs: A list of club names.
+        :return: A list of subscriber documents.
+        """
+        if self.collection is None:
+            await self.get_db_collection()
+            
+        # Construct the query to find subscribers who are subscribed to any of the clubs in the list
+        query = {"subscribed_to": {"$in": clubs}}
+        
+        # Execute the query and fetch all matching documents
+        subscribers = self.collection.find(query)
+        
+        # Convert the cursor to a list of dictionaries
+        subscribers_list = await subscribers.to_list(length=None)
+        
+        return subscribers_list
         
 #region Errors
 class DocumentNotFoundError(Exception):

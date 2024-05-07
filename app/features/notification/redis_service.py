@@ -3,7 +3,7 @@ from typing import List
 import redis
 import logging
 
-class redis_service:
+class RedisService:
     def __init__(self):
         self.r = redis.Redis(
             host='localhost',

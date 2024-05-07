@@ -1,4 +1,4 @@
-class news_article_dto:
+class NewsArticleDto:
     def __init__(self, title, url):
         self.title = title
         self.url = url

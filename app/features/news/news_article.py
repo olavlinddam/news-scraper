@@ -1,11 +1,12 @@
 from datetime import datetime
 
-from app.features.news.news_article_dto import news_article_dto
+from app.features.news.news_article_dto import NewsArticleDto
 
 
-class news_article:
-    def __init__(self, title: str, created_at: str, url: str, article_id=None):
+class NewsArticle:
+    def __init__(self, club, title: str, created_at: str, url: str, article_id=None):
         self.article_id = article_id
+        self.club = club
         self.title = title
         self.created_at = created_at
         self.url = url
@@ -26,6 +27,7 @@ class news_article:
 
     def to_dict(self):
         news_article_dict = {
+            "club": self.club,
             "title": self.title,
             "created_at": self.created_at,
             "url": self.url
@@ -35,12 +37,12 @@ class news_article:
         return news_article_dict
 
     def to_article_dto(self):
-        return news_article_dto(self.title, self.url)
+        return NewsArticleDto(self.title, self.url)
 
 
 def from_dict(news):
     if news:
-        return news_article(
+        return NewsArticle(
             title=news.get("title", ""),
             created_at=news.get("created_at", ""),
             url=news.get("url", "")
