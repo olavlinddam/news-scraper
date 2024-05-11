@@ -9,11 +9,10 @@ class NewsService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-
     async def import_news(self, clubs_urls: dict) -> list[NewsArticle]:
         try:
             self.logger.info("Initializing news import...")
-            
+
             all_imported_news = []
 
             for club_name, club_url in clubs_urls.items():
@@ -23,13 +22,11 @@ class NewsService:
                 imported_news = NewsNowScraper(club_url).scrape(existing_news, club_name)
                 new_articles = [article.to_dict() for article in imported_news]
                 # all_imported_news.append(new_articles)
-                
+
                 if len(new_articles) != 0:
                     await dao.save_documents(new_articles)
                     all_imported_news.append(imported_news)
 
-                
-                
             if len(all_imported_news) == 0:
                 logging.info("No new articles found. . .")
                 return
