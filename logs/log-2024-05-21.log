@@ -1,0 +1,8 @@
+2024-05-21 08:56:44,426 - CRITICAL - Application shutdown. Executing shutdown logic.
+2024-05-21 19:55:10,686 - CRITICAL - Application shutdown. Executing shutdown logic.
+2024-05-21 19:55:17,822 - INFO - Initializing news import...
+2024-05-21 19:55:17,823 - INFO - Connecting to the database.
+2024-05-21 19:55:17,851 - INFO - Attempting to fetch the latest news from the fcbarcelona collection.
+2024-05-21 19:55:21,411 - INFO - Driver created: <selenium.webdriver.remote.webdriver.WebDriver (session="55b08671-6165-4c68-891d-9358502421fd")>, Total open drivers: 1
+2024-05-21 19:55:21,411 - INFO - Scraping: https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Barcelona?type=ts
+2024-05-21 19:55:33,607 - INFO - Parsing page source.
