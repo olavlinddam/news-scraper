@@ -16,27 +16,20 @@ class NewsService:
             all_imported_news = []
 
             for club_name, club_url in clubs_urls.items():
-                dao = Repository("news", club_name)
-                existing_news = await dao.get_latest_news(10)
+                repo = Repository("news", club_name)
+                existing_news = await repo.get_latest_news(10)
 
                 imported_news = NewsNowScraper(club_url).scrape(existing_news, club_name)
                 new_articles = [article.to_dict() for article in imported_news]
                 # all_imported_news.append(new_articles)
 
                 if len(new_articles) != 0:
-                    await dao.save_documents(new_articles)
+                    await repo.save_documents(new_articles)
                     all_imported_news.append(imported_news)
 
             if len(all_imported_news) == 0:
                 logging.info("No new articles found. . .")
                 return
-
-            return all_imported_news
-            # all_new_news_documents = []
-            # for list_of_news in all_imported_news:
-            #     new_news_documents = [article.to_dict() for article in list_of_news]
-            #     all_new_news_documents.append(new_news_documents)
-            #     await dao.save_documents(new_news_documents)
 
             # TODO: Add new news to the redis cache
             all_articles_flattened = [article for club_articles in all_imported_news for article in club_articles]
@@ -49,7 +42,7 @@ class NewsService:
     async def get_existing_news(self, database_name, collection_name):
         try:
             repo = Repository(database_name, collection_name)
-            sub = await repo.get_subscriber("https://www.foxnews.com")
+            # sub = await repo.get_subscriber("https://www.foxnews.com")
             news_article_documents = await repo.get_latest_news(10)
 
             # Convert the MongoDB documents to news_article objects. This way we enforce validation
