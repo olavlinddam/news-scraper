@@ -25,27 +25,23 @@ async def scrape_news():
         # if url_to_scrape == "URL not found":
         #     return Response(status_code=status.HTTP_404_NOT_FOUND, content="Club not found")
 
-
         clubs_urls = ClubUrlResolver().clubs_urls
         news_service = NewsService()
         imported_news = await news_service.import_news(clubs_urls)
-        
+
         # Extract the 'club' value from each article and add it to a set to remove duplicates
         clubs_with_new_articles = set()
         for article in imported_news:
             clubs_with_new_articles.add(article.club)
-         
+
         # clubs_with_new_articles = list(set(article['club'] for article in imported_news))
-                
+
         subscription_service = SubscriptionService("subscribers")
         subscribers = await subscription_service.get_subscribers(list(clubs_with_new_articles))
-        
-        # TODO: CREATE A DICT OF SUBSCRIBERS AND THEIR NEWS TO PASS TO THE NOTIFICATION SERVICE
-        
+
         notification_service = NotificationService()
         notification_service.push(documents=imported_news, subscribers=subscribers)
-        
-        
+
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         return Response(
@@ -57,35 +53,6 @@ async def scrape_news():
                 "instance": str(uuid.uuid4()),
             },
         )
-        
-# @news_router.get("/scrape")
-# async def scrape_news():
-#     try:
-#         urls_to_scrape = ClubUrlResolver().clubs_urls.values()
-
-
-#         news_service = NewsService("news")
-#         new_news_documents = await news_service.import_news()
-        
-        
-#         subscription_service = SubscriptionService("subscribers")
-#         subscribers = subscription_service.get_subscribers()
-        
-#         notification_service = NotificationService()
-#         notification_service.push()
-        
-        
-#         return Response(status_code=status.HTTP_200_OK)
-#     except Exception as e:
-#         return Response(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             content={
-#                 "type": "https://example.com/probs/internal-error",
-#                 "title": "Internal Server Error",
-#                 "detail": "An unexpected error occurred." + str(e),
-#                 "instance": str(uuid.uuid4()),
-#             },
-#         )
 
 
 @news_router.get("/{club}")
@@ -93,8 +60,8 @@ async def get_news(club: str):
     try:
         database_name = "news"
         collection_name = f"{club.lower()}"
-        service = NewsService(database_name, collection_name, None)
-        existing_news = await service.get_existing_news()
+        service = NewsService()
+        existing_news = await service.get_existing_news(database_name, club)
         return existing_news
     except Exception as e:
         print(e)
