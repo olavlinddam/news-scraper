@@ -39,11 +39,13 @@ class NewsArticle:
     def to_article_dto(self):
         return NewsArticleDto(self.title, self.url)
 
-
-def from_dict(news):
-    if news:
-        return NewsArticle(
-            title=news.get("title", ""),
-            created_at=news.get("created_at", ""),
-            url=news.get("url", "")
-        )
+    @staticmethod
+    def from_dict(news):
+        if news:
+            return NewsArticle(
+                article_id=news.get("id", ""),
+                club=news.get("club", ""),
+                title=news.get("title", ""),
+                created_at=news.get("created_at", ""),
+                url=news.get("url", "")
+            )
