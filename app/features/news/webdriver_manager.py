@@ -42,7 +42,7 @@ class WebdriverManager:
         # Check if the driver is in the list of open drivers
         if driver in self.open_drivers:
             # If so, log that the driver is being closed
-            self.logger.info(f"Closing driver: {driver}")
+            self.logger.info(f"Closing driver: {driver}, Total open drivers: {len(self.open_drivers)}")
             # Close the driver
             driver.quit()
             # Remove the driver from the list of open drivers

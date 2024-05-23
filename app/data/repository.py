@@ -104,8 +104,7 @@ class Repository:
         except Exception as e:
             self.logger.exception("Error retrieving the subscriber:", e)
             raise Exception("Could not retrieve the subscriber: " + str(e))
-        
-        
+
     async def update_document(self, id, update):
         """
         Updates a single document in the collection that matches the filter.
@@ -115,28 +114,28 @@ class Repository:
         """
         if self.collection is None:
             await self.get_db_collection()
-            
+
         try:
             # Ensure the _id is correctly formatted as an ObjectId
             # if id:
             #     filter = ObjectId(filter["_id"])
-            
+
             self.logger.info(f"Attempting to update document with id {id} in the {self.collection_name}collection.")
             result = await self.collection.update_one({"_id": ObjectId(id)}, update)
-            
+
             if result.modified_count > 0:
                 self.logger.info("Document updated successfully.")
             else:
                 message = "No documents matched the filter criteria."
                 self.logger.info(message)
                 raise DocumentNotFoundError(message)
-                
+
         except DocumentNotFoundError as e:
             raise DocumentNotFoundError("No document matched the filter criteria.")
         except Exception as e:
             self.logger.exception("Error updating document:", e)
             raise Exception("Could not update document: " + str(e)) from e
-        
+
     async def get_subscribers_by_clubs(self, clubs: List[str]):
         """
         Fetches all subscribers that are subscribed to any club in the provided list.
@@ -146,18 +145,20 @@ class Repository:
         """
         if self.collection is None:
             await self.get_db_collection()
-            
+
+        self.logger.info(f"Fetching subscribers for clubs: {clubs}")
         # Construct the query to find subscribers who are subscribed to any of the clubs in the list
         query = {"subscribed_to": {"$in": clubs}}
-        
+
         # Execute the query and fetch all matching documents
         subscribers = self.collection.find(query)
-        
+
         # Convert the cursor to a list of dictionaries
         subscribers_list = await subscribers.to_list(length=None)
-        
+
         return subscribers_list
-        
+
+
 #region Errors
 class DocumentNotFoundError(Exception):
     "Raised when no document matched the filter"

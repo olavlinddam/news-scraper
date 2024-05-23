@@ -14,12 +14,12 @@ class NewsService:
             self.logger.info("Initializing news import...")
 
             all_imported_news = []
-
+            scraper = NewsNowScraper()
             for club_name, club_url in clubs_urls.items():
                 repo = Repository("news", club_name)
                 existing_news = await repo.get_latest_news(10)
 
-                imported_news = NewsNowScraper(club_url).scrape(existing_news, club_name)
+                imported_news = scraper.scrape(existing_news, club_name, club_url)
                 new_articles = [article.to_dict() for article in imported_news]
                 # all_imported_news.append(new_articles)
 
@@ -27,9 +27,10 @@ class NewsService:
                     await repo.save_documents(new_articles)
                     all_imported_news.append(imported_news)
 
+            scraper.dispose_driver()
+
             if len(all_imported_news) == 0:
                 logging.info("No new articles found. . .")
-                return
 
             # TODO: Add new news to the redis cache
             all_articles_flattened = [article for club_articles in all_imported_news for article in club_articles]

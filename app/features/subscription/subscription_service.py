@@ -22,7 +22,8 @@ class SubscriptionService:
                 await self.repository.save_documents([new_subscriber.to_dict()])
 
             else:
-                self.logger.info(f"Subscriber found with id: '{existing_subscriber_document['_id']}'. Updating club list.")
+                self.logger.info(
+                    f"Subscriber found with id: '{existing_subscriber_document['_id']}'. Updating club list.")
                 existing_subscriber: Subscriber = Subscriber(existing_subscriber_document["url"],
                                                              existing_subscriber_document["subscribed_to"],
                                                              existing_subscriber_document["_id"])
@@ -37,12 +38,10 @@ class SubscriptionService:
             self.logger.exception("Error processing subscription:", e)
             raise Exception("Could not process subscription: " + str(e))
 
-
     async def get_subscribers(self, clubs: List[str]):
         if len(clubs) == 0:
             self.logger.info("Error fetching subscribers: 'Provided list of clubs is empty'")
-            return        
-        
-        
+            return
+
         subscribers = await self.repository.get_subscribers_by_clubs(clubs)
         return subscribers

@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 import requests
 
 from app.features.news.news_article import NewsArticle
+from app.features.notification.article_push_request import ArticlePushRequest
 
 
 class NotificationService:
@@ -19,14 +20,20 @@ class NotificationService:
 
         for subscriber in subscribers:
             clubs_subscribed_to = subscriber['subscribed_to']
-            relevant_documents = [doc for doc in documents if doc.club in clubs_subscribed_to]  # Use.club instead of ['club']
+            relevant_documents = [doc for doc in documents if doc.club in clubs_subscribed_to]
+            dtos = []
+            for doc in relevant_documents:
+                dto = ArticlePushRequest(doc).to_dict()
+                dtos.append(dto)
 
             # If there are no relevant documents for this subscriber, skip to the next subscriber
             if not relevant_documents:
                 continue
 
             self.logger.info(f"Sending {len(relevant_documents)} documents to {subscriber['url']}")
-            data = json.dumps([doc.__dict__ for doc in relevant_documents])  # Convert NewsArticle objects to dictionaries
+            # TODO: Convert the articles to DTOs before pushing. -- something wrong with dto formatting
+            # data = json.dumps([doc.__dict__ for doc in relevant_documents])  # Convert NewsArticle objects to dictionaries
+            data = json.dumps(dtos)
 
             # Send the documents to the subscriber's URL
             try:

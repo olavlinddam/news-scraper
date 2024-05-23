@@ -13,17 +13,16 @@ from app.features.news.webdriver_manager import WebdriverManager
 
 
 class NewsNowScraper:
-    def __init__(self, url_to_scrape: str):
+    def __init__(self):
         self.compose_selenium_url = 'http://selenium:4444/wd/hub'
         self.standalone_selenium_url = 'http://localhost:4444/wd/hub'
-        self.url_to_scrape = url_to_scrape
         self.driver = WebdriverManager().create_driver()
         self.logger = logging.getLogger(__name__)
 
-    def get_page_source(self, driver):
-        self.logger.info(f"Scraping: %s", self.url_to_scrape)
-        driver.get(self.url_to_scrape)
-        page_source = driver.page_source
+    def get_page_source(self, url_to_scrape):
+        self.logger.info(f"Scraping: %s", url_to_scrape)
+        self.driver.get(url_to_scrape)
+        page_source = self.driver.page_source
         time.sleep(5)
         return page_source
 
@@ -44,7 +43,7 @@ class NewsNowScraper:
 
         for popular_article in popular_articles:
             headline = popular_article.find('span', class_='article-title popular-title list-layout').text.strip()
-
+            self.logger.info("Filtering existing articles from the imported articles.")
             # Check if the headline is already in existing_news
             if any(article['title'] == headline for article in existing_news):
                 continue  # Skip this iteration if the article is already in the database
@@ -61,17 +60,19 @@ class NewsNowScraper:
             article = NewsArticle(club, headline, article_created_at_str, resolved_href)
             news_articles.append(article)
 
+        self.logger.info(f"Found {len(news_articles)} news articles.")
         return news_articles
 
-    def scrape(self, existing_news: list[dict[str, str]], club):
+    def scrape(self, existing_news: list[dict[str, str]], club, url_to_scrape: str):
         """Scrapes for news articles and returns a list of imported news articles"""
-        page_source = self.get_page_source(self.driver)
+        page_source = self.get_page_source(url_to_scrape)
         soup = BeautifulSoup(page_source, 'html.parser')
         popular_articles = soup.find(class_="newsfeed newsfeed--popular").find_all(class_="article-card__inner")[:10]
-
         imported_news_articles = self.parse(popular_articles, existing_news, club)
-        WebdriverManager().dispose_driver(self.driver)
         return imported_news_articles
+
+    def dispose_driver(self):
+        WebdriverManager().dispose_driver(self.driver)
 
 # if __name__ == '__main__':
 #     scraper = news_now_scraper('https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Barcelona?type=ts')
