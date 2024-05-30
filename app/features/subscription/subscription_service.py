@@ -15,12 +15,15 @@ class SubscriptionService:
 
     async def process_subscription(self, request: SubscriptionRequest):
         try:
+            self.logger.info(f"Processing subscription request for subscriber with url {request.url}")
             existing_subscriber_document = await self.repository.get_subscriber(request.url)
 
             if existing_subscriber_document is None:
+                self.logger.info(f"No subscriber found with url {request.url}, inserting a new subscriber into"
+                                 f"subscriber collection.")
                 new_subscriber = Subscriber(url=request.url, subscribed_to=[request.club])
                 await self.repository.save_documents([new_subscriber.to_dict()])
-
+                self.logger.info(f"Subscriber with url {request.url} inserted successfully.")
             else:
                 self.logger.info(
                     f"Subscriber found with id: '{existing_subscriber_document['_id']}'. Updating club list.")

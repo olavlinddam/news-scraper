@@ -21,7 +21,6 @@ class NewsService:
 
                 imported_news = scraper.scrape(existing_news, club_name, club_url)
                 new_articles = [article.to_dict() for article in imported_news]
-                # all_imported_news.append(new_articles)
 
                 if len(new_articles) != 0:
                     await repo.save_documents(new_articles)
@@ -43,7 +42,6 @@ class NewsService:
     async def get_existing_news(self, database_name, collection_name):
         try:
             repo = Repository(database_name, collection_name)
-            # sub = await repo.get_subscriber("https://www.foxnews.com")
             news_article_documents = await repo.get_latest_news(10)
 
             # Convert the MongoDB documents to news_article objects. This way we enforce validation

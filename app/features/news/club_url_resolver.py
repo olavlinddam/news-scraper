@@ -1,3 +1,6 @@
+from typing import List
+
+
 class ClubUrlResolver:
     def __init__(self):
         self.clubs_urls = {
@@ -12,3 +15,15 @@ class ClubUrlResolver:
 
     def check_club_match(self, club: str) -> str:
         return self.clubs_urls.get(club.lower(), "Club not found")
+
+    def check_club_collection_match(self, clubs: List[str]) -> List[str] | None:
+        non_matching_clubs = []
+        for club in clubs:
+            if club.lower() not in self.clubs_urls.keys():
+                non_matching_clubs.append(club)
+            
+        if non_matching_clubs:
+            return non_matching_clubs
+        
+        return None
+                

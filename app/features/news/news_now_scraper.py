@@ -41,9 +41,9 @@ class NewsNowScraper:
 
         news_articles = []
 
+        self.logger.info("Filtering existing articles from the imported articles.")
         for popular_article in popular_articles:
             headline = popular_article.find('span', class_='article-title popular-title list-layout').text.strip()
-            self.logger.info("Filtering existing articles from the imported articles.")
             # Check if the headline is already in existing_news
             if any(article['title'] == headline for article in existing_news):
                 continue  # Skip this iteration if the article is already in the database

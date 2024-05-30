@@ -21,10 +21,13 @@ subscription_router = APIRouter(
 @subscription_router.post("/subscribe")
 async def subscribe(subscriber: SubscriptionRequest):
     try:
-        club = ClubUrlResolver().check_club_match(club=subscriber.club)
-        if club == "Club not found":
-            return Response(status_code=status.HTTP_404_NOT_FOUND, content="Club not found")
-
+        non_matching_clubs = ClubUrlResolver().check_club_collection_match(clubs=subscriber.club)
+        if non_matching_clubs:
+            message = f"Some clubs were not found: {', '.join(non_matching_clubs)}"
+            return Response(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=message)
+        
         service = SubscriptionService("subscribers")
         await service.process_subscription(subscriber)        
         return Response(status_code=status.HTTP_200_OK)
