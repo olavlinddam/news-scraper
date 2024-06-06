@@ -21,7 +21,7 @@ class SubscriptionService:
             if existing_subscriber_document is None:
                 self.logger.info(f"No subscriber found with url {request.url}, inserting a new subscriber into"
                                  f"subscriber collection.")
-                new_subscriber = Subscriber(url=request.url, subscribed_to=[request.club])
+                new_subscriber = Subscriber(url=request.url, subscribed_to=request.club)
                 await self.repository.save_documents([new_subscriber.to_dict()])
                 self.logger.info(f"Subscriber with url {request.url} inserted successfully.")
             else:
@@ -30,12 +30,12 @@ class SubscriptionService:
                 existing_subscriber: Subscriber = Subscriber(existing_subscriber_document["url"],
                                                              existing_subscriber_document["subscribed_to"],
                                                              existing_subscriber_document["_id"])
-
-                if request.club not in existing_subscriber.subscribed_to:
-                    existing_subscriber.subscribed_to.append(request.club)
-                    # Update the document in the database
-                    update = {"$set": {"subscribed_to": existing_subscriber.subscribed_to}}
-                    await self.repository.update_document(existing_subscriber._id, update)
+                for club in request.club:
+                    if request.club not in existing_subscriber.subscribed_to:
+                        existing_subscriber.subscribed_to.append(club)
+                        # Update the document in the database
+                        update = {"$set": {"subscribed_to": existing_subscriber.subscribed_to}}
+                        await self.repository.update_document(existing_subscriber._id, update)
 
         except Exception as e:
             self.logger.exception("Error processing subscription:", e)

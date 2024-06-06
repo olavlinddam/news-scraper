@@ -31,9 +31,10 @@ async def scrape_news():
             clubs_with_new_articles.add(article.club)
 
         if len(clubs_with_new_articles) == 0:
-            return Response(status_code=status.HTTP_200_OK,
-                            content="No new articles found",
-                            media_type="a")
+            clubs_with_new_articles.add("fcbarcelona")
+            #return Response(status_code=status.HTTP_200_OK,
+            #                content="No new articles found",
+            #                media_type="a")
 
         subscription_service = SubscriptionService("subscribers")
         subscribers = await subscription_service.get_subscribers(list(clubs_with_new_articles))
@@ -53,6 +54,7 @@ async def scrape_news():
             },
         )
 
+
 # TODO: Find out why existing news returns empty list here..
 @news_router.get("/{club}")
 async def get_news(club: str):
@@ -60,7 +62,7 @@ async def get_news(club: str):
         database_name = "news"
         collection_name = f"{club.lower()}"
         service = NewsService()
-        existing_news = await service.get_existing_news(database_name, club)
+        existing_news = await service.get_existing_news(database_name, collection_name)
         return existing_news
     except Exception as e:
         print(e)

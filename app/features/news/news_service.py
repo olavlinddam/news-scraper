@@ -3,7 +3,7 @@ from app.data.repository import Repository
 from app.features.news.news_article import NewsArticle
 from app.features.news.news_now_scraper import NewsNowScraper
 import logging
-
+from app.features.news.news_article_dto import NewsArticleDTO
 
 class NewsService:
     def __init__(self):
@@ -48,7 +48,7 @@ class NewsService:
             news_articles = [NewsArticle.from_dict(news) for news in news_article_documents]
 
             # Convert the news_article objects to DTOs
-            dto_list = [article.to_article_dto() for article in news_articles]
+            dto_list = [NewsArticleDTO(article) for article in news_articles]
 
             return dto_list
         except Exception as e:

@@ -159,6 +159,8 @@ class Repository:
         return subscribers_list
 
 
+
+
 #region Errors
 class DocumentNotFoundError(Exception):
     "Raised when no document matched the filter"

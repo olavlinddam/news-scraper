@@ -1,6 +1,7 @@
 from typing import List
 from bson import ObjectId
 
+
 class Subscriber:
     def __init__(self, url: str, subscribed_to: List[str], _id=None):
         if _id is None:
@@ -17,4 +18,3 @@ class Subscriber:
             "subscribed_to": self.subscribed_to
         }
         return subscriber_dict
-

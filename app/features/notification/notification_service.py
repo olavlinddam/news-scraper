@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 import requests
 
 from app.features.news.news_article import NewsArticle
-from app.features.notification.article_push_request import ArticlePushRequest
+from app.features.news.news_article_dto import NewsArticleDTO
 
 
 class NotificationService:
@@ -23,7 +23,7 @@ class NotificationService:
             relevant_documents = [doc for doc in documents if doc.club in clubs_subscribed_to]
             dtos = []
             for doc in relevant_documents:
-                dto = ArticlePushRequest(doc).to_dict()
+                dto = NewsArticleDTO(doc).to_dict()
                 dtos.append(dto)
 
             # If there are no relevant documents for this subscriber, skip to the next subscriber

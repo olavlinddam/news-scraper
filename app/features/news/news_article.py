@@ -1,8 +1,5 @@
 from datetime import datetime
 
-from app.features.news.news_article_dto import NewsArticleDto
-
-
 class NewsArticle:
     def __init__(self, club, title: str, created_at: str, url: str, article_id=None):
         self.article_id = article_id
@@ -35,9 +32,6 @@ class NewsArticle:
         if self.article_id:
             news_article_dict["article_id"] = self.article_id
         return news_article_dict
-
-    def to_article_dto(self):
-        return NewsArticleDto(self.title, self.url)
 
     @staticmethod
     def from_dict(news):
