@@ -17,14 +17,8 @@ class NewsService:
             all_imported_news = []
             scraper = NewsNowScraper()
             for club_name, club_url in clubs_urls.items():
-                repo = Repository("news", club_name)
-                existing_news = await repo.get_latest_news(10)
-
-                imported_news = scraper.scrape(existing_news, club_name, club_url)
-                new_articles = [article.to_dict() for article in imported_news]
-
-                if len(new_articles) != 0:
-                    await repo.save_documents(new_articles)
+                imported_news = await self.import_news_by_club(club_url, scraper, club_name)
+                if imported_news:
                     all_imported_news.append(imported_news)
 
             scraper.dispose_driver()
@@ -67,3 +61,17 @@ class NewsService:
                 new_news.append(item)
 
         return new_news
+
+    @staticmethod
+    async def import_news_by_club(club_url, scraper, club_name):
+        repo = Repository("news", club_name)
+        existing_news = await repo.get_latest_news(10)
+
+        imported_news = scraper.scrape(existing_news, club_name, club_url)
+        new_articles = [article.to_dict() for article in imported_news]
+
+        if len(new_articles) != 0:
+            await repo.save_documents(new_articles)
+            return new_articles
+
+        return None

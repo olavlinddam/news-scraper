@@ -31,6 +31,7 @@ class NewsNowScraper:
         self.driver.get(href)
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
         time.sleep(2)
+
         # Get the current URL after the page has loaded and any redirects have occurred
         resolved_href = self.driver.current_url
         return resolved_href
@@ -43,21 +44,19 @@ class NewsNowScraper:
 
         self.logger.info("Filtering existing articles from the imported articles.")
         for popular_article in popular_articles:
+
             headline = popular_article.find('span', class_='article-title popular-title list-layout').text.strip()
+
             # Check if the headline is already in existing_news
             if any(article['title'] == headline for article in existing_news):
                 continue  # Skip this iteration if the article is already in the database
 
-            timestamp = popular_article.find('span', class_='article-publisher__timestamp').text.strip()
+            # Find the article link and resolve the redirect URL
             href = popular_article.find('a', class_='article-card__headline')['href']
-
-            # Resolve the redirect URL
             resolved_href = self.resolve_href(href)
 
-            hours = int(timestamp[:-1])  # Remove the 'h' and convert to int
-            article_created_at = datetime.now() - timedelta(hours=hours)
-            article_created_at_str = article_created_at.strftime("%Y-%m-%d %H:%M:%S")
-            article = NewsArticle(club, headline, article_created_at_str, resolved_href)
+            timestamp = self.extract_and_format_timestamp(popular_article)
+            article = NewsArticle(club, headline, timestamp, resolved_href)
             news_articles.append(article)
 
         self.logger.info(f"Found {len(news_articles)} news articles.")
@@ -65,6 +64,7 @@ class NewsNowScraper:
 
     def scrape(self, existing_news: list[dict[str, str]], club, url_to_scrape: str):
         """Scrapes for news articles and returns a list of imported news articles"""
+
         page_source = self.get_page_source(url_to_scrape)
         soup = BeautifulSoup(page_source, 'html.parser')
         popular_articles = soup.find(class_="newsfeed newsfeed--popular").find_all(class_="article-card__inner")[:10]
@@ -73,6 +73,14 @@ class NewsNowScraper:
 
     def dispose_driver(self):
         WebdriverManager().dispose_driver(self.driver)
+
+    @staticmethod
+    def extract_and_format_timestamp(popular_article):
+        timestamp = popular_article.find('span', class_='article-publisher__timestamp').text.strip()
+        hours = int(timestamp[:-1])  # Remove the 'h' and convert to int
+        article_created_at = datetime.now() - timedelta(hours=hours)
+        article_created_at_str = article_created_at.strftime("%Y-%m-%d %H:%M:%S")
+        return article_created_at_str
 
 # if __name__ == '__main__':
 #     scraper = news_now_scraper('https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Barcelona?type=ts')
