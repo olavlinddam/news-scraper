@@ -5,6 +5,7 @@ from app.features.news.news_now_scraper import NewsNowScraper
 import logging
 from app.features.news.news_article_dto import NewsArticleDTO
 
+
 class NewsService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)

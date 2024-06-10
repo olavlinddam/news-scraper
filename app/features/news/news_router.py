@@ -31,10 +31,9 @@ async def scrape_news():
             clubs_with_new_articles.add(article.club)
 
         if len(clubs_with_new_articles) == 0:
-            clubs_with_new_articles.add("fcbarcelona")
-            #return Response(status_code=status.HTTP_200_OK,
-            #                content="No new articles found",
-            #                media_type="a")
+            return Response(status_code=status.HTTP_200_OK,
+                            content="No new articles found",
+                            media_type="a")
 
         subscription_service = SubscriptionService("subscribers")
         subscribers = await subscription_service.get_subscribers(list(clubs_with_new_articles))
@@ -55,7 +54,7 @@ async def scrape_news():
         )
 
 
-# TODO: Find out why existing news returns empty list here..
+
 @news_router.get("/{club}")
 async def get_news(club: str):
     try:

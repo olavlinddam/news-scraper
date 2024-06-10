@@ -17,7 +17,6 @@ subscription_router = APIRouter(
 )
 
 
-        
 @subscription_router.post("/subscribe")
 async def subscribe(subscriber: SubscriptionRequest):
     try:
@@ -25,11 +24,11 @@ async def subscribe(subscriber: SubscriptionRequest):
         if non_matching_clubs:
             message = f"Some clubs were not found: {', '.join(non_matching_clubs)}"
             return Response(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content=message)
-        
+                status_code=status.HTTP_404_NOT_FOUND,
+                content=message)
+
         service = SubscriptionService("subscribers")
-        await service.process_subscription(subscriber)        
+        await service.process_subscription(subscriber)
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         error_response = {
@@ -40,5 +39,5 @@ async def subscribe(subscriber: SubscriptionRequest):
         }
         return Response(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=json.dumps(error_response), # Convert the dictionary to a JSON string
+            content=json.dumps(error_response),  # Convert the dictionary to a JSON string
         )
