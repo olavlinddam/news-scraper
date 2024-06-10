@@ -13,29 +13,23 @@ class NotificationService:
         self.logger = logging.getLogger(__name__)
 
     def push(self, documents: List[NewsArticle], subscribers: List[Dict[str, Any]]) -> None:
-        if not documents:
-            return
-        if not subscribers:
+        if not documents or not subscribers:
             return
 
         for subscriber in subscribers:
             clubs_subscribed_to = subscriber['subscribed_to']
             relevant_documents = [doc for doc in documents if doc.club in clubs_subscribed_to]
             dtos = []
-            for doc in relevant_documents:
-                dto = NewsArticleDTO(doc).to_dict()
+            for document in relevant_documents:
+                dto = NewsArticleDTO(document).to_dict()
                 dtos.append(dto)
 
-            # If there are no relevant documents for this subscriber, skip to the next subscriber
             if not relevant_documents:
                 continue
 
             self.logger.info(f"Sending {len(relevant_documents)} documents to {subscriber['url']}")
-            # TODO: Convert the articles to DTOs before pushing. -- something wrong with dto formatting
-            # data = json.dumps([doc.__dict__ for doc in relevant_documents])  # Convert NewsArticle objects to dictionaries
             data = json.dumps(dtos)
 
-            # Send the documents to the subscriber's URL
             try:
                 response = requests.post(subscriber['url'], data=data, headers={'Content-Type': 'application/json'})
                 response.raise_for_status()  # Raises an HTTPError if the response status code is 4xx or 5xx
