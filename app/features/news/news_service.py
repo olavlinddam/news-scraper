@@ -68,10 +68,11 @@ class NewsService:
         existing_news = await repo.get_latest_news(10)
 
         imported_news = scraper.scrape(existing_news, club_name, club_url)
+
+        if len(imported_news) == 0:
+            return None
+
         new_articles = [article.to_dict() for article in imported_news]
+        await repo.save_documents(new_articles)
 
-        if len(new_articles) != 0:
-            await repo.save_documents(new_articles)
-            return new_articles
-
-        return None
+        return imported_news
