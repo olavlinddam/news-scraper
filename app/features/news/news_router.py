@@ -21,9 +21,8 @@ news_router = APIRouter(
 @news_router.get("/scrape")
 async def scrape_news():
     try:
-        clubs_urls = ClubUrlResolver().clubs_urls
         news_service = NewsService()
-        imported_news = await news_service.import_news(clubs_urls)
+        imported_news = await news_service.import_news()
 
         # Extract the 'club' value from each article and add it to a set to remove duplicates
         clubs_with_new_articles = set()
@@ -81,3 +80,4 @@ async def get_news(club: str):
 
 if __name__ == "__main__":
     uvicorn.run("app.api.news:router", host="0.0.0.0", port=8000)
+

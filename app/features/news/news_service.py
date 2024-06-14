@@ -1,6 +1,5 @@
-from typing import List
 from app.data.repository import Repository
-from app.features.news.news_article import NewsArticle
+from app.data.models.news_article import NewsArticle
 from app.features.news.news_now_scraper import NewsNowScraper
 import logging
 from app.features.news.news_article_dto import NewsArticleDTO
@@ -10,16 +9,26 @@ class NewsService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    async def import_news(self, clubs_urls: dict) -> list[NewsArticle]:
+    async def import_news(self) -> list[NewsArticle]:
         try:
             self.logger.info("Initializing news import...")
 
+            leagues_repo = Repository(database_name="admin", collection_name="leagues")
+            leagues = await leagues_repo.get_leagues()
+
             all_imported_news = []
             scraper = NewsNowScraper()
-            for club_name, club_url in clubs_urls.items():
-                imported_news = await self.import_news_by_club(club_url, scraper, club_name)
-                if imported_news:
-                    all_imported_news.append(imported_news)
+            
+            for league in leagues:
+                for club in league["clubs"]:
+                    
+                    club_name = club["name"]
+                    club_url = club["url"]
+                    
+                    imported_news = await self.import_news_by_club(club_url, scraper, club_name)
+                    
+                    if imported_news:
+                        all_imported_news.append(imported_news)
 
             scraper.dispose_driver()
 

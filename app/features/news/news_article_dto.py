@@ -1,4 +1,4 @@
-from app.features.news.news_article import NewsArticle
+from app.data.models.news_article import NewsArticle
 
 
 class NewsArticleDTO:

@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 
 import requests
 
-from app.features.news.news_article import NewsArticle
+from app.data.models.news_article import NewsArticle
 from app.features.news.news_article_dto import NewsArticleDTO
 
 

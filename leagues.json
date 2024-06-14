@@ -1,0 +1,62 @@
+[
+  {
+    "name": "La Liga",
+    "clubs": [
+      {
+        "name": "Alaves",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Alaves?type=ts"
+      },
+      {
+        "name": "Almeria",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Almeria?type=ts"
+      },
+
+      {
+        "name": "Athletic Bilbao",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Athletic+Bilbao?type=ts"
+      },
+
+      {
+        "name": "Athletico Madrid",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Atletico+Madrid?type=ts"
+      },
+{
+        "name": "Barcelona",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Barcelona?type=ts+"
+      },
+{
+        "name": "Cadiz",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Cadiz?type=ts+"
+      },
+{
+        "name": "Celta de Vigo",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Celta+de+Vigo?type=ts+"
+      },
+{
+        "name": "Getafe",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Getafe?type=ts"
+      },
+      {
+        "name": "Girona",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Girona?type=ts"
+      },
+
+      {
+        "name": "Granada",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/Granada?type=ts"
+      },
+
+      {
+        "name": "Las Palmas",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/las+palmas?type=ts"
+      },
+{
+        "name": "Mallorca",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/mallorca?type=ts+"
+      },
+{
+        "name": "Osasuna",
+        "url": "https://www.newsnow.co.uk/h/Sport/Football/La+Liga/osasuna?type=ts+"
+}]
+      }
+    ]

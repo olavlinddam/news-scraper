@@ -18,7 +18,7 @@ subscription_router = APIRouter(
 
 
 @subscription_router.post("/subscribe")
-async def subscribe(subscriber: SubscriptionRequest):
+async def insert_subscriber(subscriber: SubscriptionRequest):
     try:
         non_matching_clubs = ClubUrlResolver().check_club_collection_match(clubs=subscriber.club)
         if non_matching_clubs:
@@ -40,4 +40,24 @@ async def subscribe(subscriber: SubscriptionRequest):
         return Response(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=json.dumps(error_response),  # Convert the dictionary to a JSON string
+        )
+
+
+@subscription_router.get("/clubs")
+async def get_clubs():
+    try:
+        service = SubscriptionService("clubs")
+        clubs = await service.get_clubs()
+        return Response(status_code=status.HTTP_200_OK,
+                        content=clubs)
+    except Exception as e:
+        error_response = {
+            "type": "https://example.com/probs/bad-request",
+            "title": "Bad Request",
+            "detail": "An unexpected error occurred." + str(e),
+            "instance": str(uuid.uuid4()),
+        }
+        return Response(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=json.dumps(error_response)
         )

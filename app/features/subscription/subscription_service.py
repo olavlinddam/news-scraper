@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from app.features.subscription.subscriber import Subscriber
+from app.data.models.subscriber import Subscriber
 from app.features.subscription.subscription_request import SubscriptionRequest
 from app.data.repository import Repository
 
@@ -53,3 +53,10 @@ class SubscriptionService:
         # Update the document in the database
         update = {"$set": {"subscribed_to": existing_subscriber.subscribed_to}}
         await self.repository.update_document(existing_subscriber._id, update)
+
+    async def get_clubs(self):
+        try:
+            clubs = await self.repository.get_clubs()
+            return clubs
+        except Exception as e:
+            self.logger.exception("Error fetching clubs: " + str(e))

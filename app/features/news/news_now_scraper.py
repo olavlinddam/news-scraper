@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from app.features.news.news_article import NewsArticle
+from app.data.models.news_article import NewsArticle
 from app.features.news.webdriver_manager import WebdriverManager
 
 
@@ -18,6 +18,7 @@ class NewsNowScraper:
         self.standalone_selenium_url = 'http://localhost:4444/wd/hub'
         self.driver = WebdriverManager().create_driver()
         self.logger = logging.getLogger(__name__)
+        
 
     def get_page_source(self, url_to_scrape):
         self.logger.info(f"Scraping: %s", url_to_scrape)

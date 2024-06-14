@@ -5,10 +5,11 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ServerSelectionTimeoutError
 
-from app.features.subscription.subscriber import Subscriber
+from app.data.models.league import League
 
 
 class Repository:
+
     def __init__(self, database_name, collection_name):
         self.database_name = database_name
         self.collection_name = collection_name
@@ -16,6 +17,17 @@ class Repository:
         self.db = None
         self.collection = None
         self.logger = logging.getLogger(__name__)
+
+    async def get_leagues(self):
+        if self.collection is None:
+            await self.get_db_collection()
+        try:
+            self.logger.info("Leagues cache is empty, fetching all leagues")
+            cursor = self.collection.find({})
+            leagues = [docs for docs in await cursor.to_list(length=40)]
+            return leagues
+        except Exception as e:
+            raise Exception("Could not fetch existing leagues and populate cache", str(e))
 
     async def get_db_collection(self):
         """
@@ -158,7 +170,16 @@ class Repository:
 
         return subscribers_list
 
+    async def get_clubs(self):
+        if self.collection is None:
+            await self.get_db_collection()
 
+        self.logger.info("Fetching clubs")
+
+        # Fetch all clubs
+
+    async def save_clubs(self, league: League):
+        pass
 
 
 #region Errors

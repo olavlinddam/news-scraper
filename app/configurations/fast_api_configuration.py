@@ -1,6 +1,7 @@
 import logging
 from fastapi import FastAPI
 
+from app.features.admin.admin_router import admin_router
 from app.features.news.news_router import news_router
 from app.features.subscription.subscription_router import subscription_router
 
@@ -14,8 +15,7 @@ def configure_fast_api():
     # @app.on_event("shutdown")
     # def shutdown_event_wrapper():
     #     shutdown_event()
-
     app.include_router(news_router)
     app.include_router(subscription_router)
-
+    app.include_router(admin_router)
     return app  # Return the FastAPI app instance

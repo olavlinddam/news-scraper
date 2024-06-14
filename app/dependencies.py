@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 
 async def get_token_header(x_token: Annotated[str, Header()]):
-    if x_token != "test":
+    if x_token != "admin":
         raise HTTPException(status_code=400, detail="X-Token header invalid")
 
 
